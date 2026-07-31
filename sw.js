@@ -1,4 +1,4 @@
-const CACHE = "condition-note-v2.2-cache-1";
+const CACHE = "condition-note-v2.3-cache-1";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", event => {
