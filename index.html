@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.2.1</title>
+  <title>コンディションノート Ver.2.2</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -66,11 +66,13 @@
     .inline{display:flex;gap:8px}.inline>*{flex:1}
     .calendar-head,.summary-head{display:flex;align-items:center;gap:8px}
     .grow{flex:1}
-    .weekday,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+    .weekday,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));width:100%}
     .weekday div{text-align:center;font-size:12px;padding:6px}
-    .day{min-height:72px;border-top:1px solid #e7eef4;padding:5px;font-size:12px}
+    .day{min-width:0;width:100%;min-height:72px;border-top:1px solid #e7eef4;padding:5px;font-size:12px;overflow:hidden}
     .day.other{opacity:.35}.day.today{background:#eef7ff;border-radius:9px}.day{cursor:pointer;border-radius:10px;transition:.15s}.day.selected{background:var(--accent);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent);font-weight:700}.day.selected .day-icons{filter:none}.day.has-record{cursor:pointer}
-    .day-icons{font-size:16px;line-height:1.05;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:4px}
+    .day-icons{font-size:16px;line-height:1.05;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:4px;min-width:0}
+    .day-icons span{display:block;min-width:0;text-align:center;overflow:hidden;white-space:nowrap}
+    .more-icons{font-weight:900;font-size:17px}
     .summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     .stat{background:#fff;border-radius:14px;padding:10px;text-align:center;border:1px solid #e3ebf2}
     .stat b{display:block;font-size:18px;margin-top:4px}
@@ -209,7 +211,10 @@
 
   <section class="page" id="page-settings">
     <div class="card">
-      <h2>設定</h2>
+      <div class="calendar-head">
+        <h2 class="grow">設定</h2>
+        <button class="small-button" id="openOtherSettings">⚙️ その他設定</button>
+      </div>
       <h3>症状の管理</h3>
       <div class="muted">アイコン、名称、追加情報の編集・並び替え</div>
       <div class="section-tools">
@@ -253,8 +258,15 @@
       </div>
     </div>
 
+  </section>
+
+  <section class="page" id="page-other-settings">
     <div class="card">
-      <h3>その他設定</h3>
+      <div class="calendar-head">
+        <button class="small-button" id="backToSettings">◀ 戻る</button>
+        <h2 class="grow" style="text-align:center">その他設定</h2>
+        <span style="width:72px" aria-hidden="true"></span>
+      </div>
       <div class="field">
         <label>テーマカラー</label>
         <select id="themeColor">
@@ -337,7 +349,7 @@ let state = (() => {
     if (current) return current;
   } catch {}
   return migrateLegacy() || {
-    version:2.1,
+    version:2.2,
     symptoms:defaultSymptoms,
     records:{},
     settings:{accent:"#5ba7e5"},
@@ -383,7 +395,7 @@ function normalizeState(source){
     };
   });
   return {
-    version:2.1,
+    version:2.2,
     symptoms,
     records,
     settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || []},
@@ -410,9 +422,12 @@ function showPage(name){
   if(name==="calendar") renderCalendar();
   if(name==="summary") renderSummary();
   if(name==="settings") renderSettings();
+  if(name==="other-settings") renderExportHistory();
 }
 $$(".tab").forEach(t=>t.onclick=()=>showPage(t.dataset.page));
 $("#settingsButton").onclick=()=>showPage("settings");
+$("#openOtherSettings").onclick=()=>showPage("other-settings");
+$("#backToSettings").onclick=()=>showPage("settings");
 
 function renderInput(){
   $("#dateButton").textContent = formatDate(selectedDate);
@@ -498,9 +513,12 @@ function renderCalendar(){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const dateKey=iso(d);
     const record = state.records[dateKey];
-    const icons = (record?.symptoms || []).slice(0,6).map(r=>state.symptoms.find(s=>s.id===r.id)?.emoji || "");
+    const symptomItems = record?.symptoms || [];
+    const visibleItems = symptomItems.length >= 7 ? symptomItems.slice(0,5) : symptomItems.slice(0,6);
+    const icons = visibleItems.map(r=>state.symptoms.find(s=>s.id===r.id)?.emoji || "");
+    if(symptomItems.length >= 7) icons.push("+");
     html += `<div class="day ${d.getMonth()!==m?"other":""} ${dateKey===iso(new Date())?"today":""} ${dateKey===iso(selectedDate)?"selected":""} ${record?"has-record":""}" data-date="${dateKey}">
-      <b>${d.getDate()}</b><div class="day-icons">${icons.map(x=>`<span>${x}</span>`).join("")}</div>
+      <b>${d.getDate()}</b><div class="day-icons">${icons.map(x=>`<span class="${x==="+"?"more-icons":""}">${x}</span>`).join("")}</div>
     </div>`;
   }
   $("#calendarGrid").innerHTML = html;
@@ -758,7 +776,7 @@ function renderExportHistory(){
   box.innerHTML=`<h3 style="margin-top:16px">出力履歴</h3>`+state.exportHistory.map((h,i)=>`<div class="history-item"><b>${h.label}</b><div class="muted">${new Date(h.date).toLocaleString("ja-JP")}・${h.count}日分</div></div>`).join("");
 }
 
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js", {scope:"/"}).catch(()=>{}));}
 applyTheme();
 renderInput();
 </script>
