@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.2.4.0</title>
+  <title>コンディションノート Ver.2.5.0</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -80,6 +80,44 @@
     .donut::after{content:"";width:86px;height:86px;background:#fff;border-radius:50%}
     .bar-row{display:grid;grid-template-columns:28px 1fr 34px;gap:7px;align-items:center;margin:10px 0}
     .bar{height:8px;background:#e6edf3;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:var(--accent)}
+    .summary-switch{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:8px}
+    .summary-switch button{border:0;background:#fff;padding:9px;font-weight:700}
+    .summary-switch button.active{background:var(--accent);color:#fff}
+    .summary-range-card{padding:10px 12px;margin-bottom:8px}
+    .summary-period-line{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:6px}
+    .summary-period-title{text-align:center;font-size:17px;font-weight:800}
+    .summary-range-buttons{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
+    .summary-range-buttons button{padding:7px 2px;font-size:11px;border:1px solid var(--line);background:#fff;border-radius:9px}
+    .summary-range-buttons button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+    .summary-note{text-align:center;font-size:10px;color:var(--muted);margin-top:5px}
+    .summary-stats.compact{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+    .summary-stats.compact .stat{padding:7px 3px;font-size:10px;min-height:62px}
+    .summary-stats.compact .stat b{font-size:14px;line-height:1.15}
+    .summary-main-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .summary-panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px;min-height:194px}
+    .summary-panel h3{font-size:13px;margin-bottom:5px}
+    .summary-donut-wrap{display:grid;grid-template-columns:108px 1fr;gap:7px;align-items:center}
+    .summary-donut-wrap .donut{width:104px;height:104px;margin:3px auto}
+    .summary-donut-wrap .donut::after{width:61px;height:61px}
+    .summary-legend{font-size:9px;line-height:1.55}
+    .summary-panel .bar-row{grid-template-columns:18px 1fr 25px;gap:4px;margin:6px 0;font-size:10px}
+    .summary-symptom-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+    .summary-symptom-card{border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 2px;text-align:center;font-size:10px;min-height:52px}
+    .summary-symptom-card b{display:block;font-size:14px;margin-top:2px}
+    .summary-symptom-card.active{border:2px solid var(--accent);background:var(--accent-soft)}
+    .symptom-detail-box{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px;margin-top:8px}
+    .symptom-detail-head{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:13px;margin-bottom:6px}
+    .detail-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .detail-mini-stat{border:1px solid var(--line);border-radius:10px;padding:7px;text-align:center;font-size:9px}
+    .detail-mini-stat b{display:block;font-size:15px;margin-top:3px}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}
+    .detail-panel{border:1px solid var(--line);border-radius:10px;padding:7px;font-size:9px;min-height:102px}
+    .detail-panel h4{font-size:10px;margin:0 0 4px}
+    .distribution-row{display:grid;grid-template-columns:28px 1fr 44px;align-items:center;gap:4px;margin:5px 0}
+    .mini-month-bars{display:flex;align-items:flex-end;justify-content:space-around;height:64px;gap:5px;padding-top:7px}
+    .mini-month-col{flex:1;text-align:center;font-size:8px}
+    .mini-month-bar{width:70%;max-width:28px;margin:0 auto 3px;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+    .summary-memo{margin-top:7px;padding:7px 9px;border-radius:9px;background:#fff4f4;font-size:9px;line-height:1.45}
     .section-tools{display:flex;justify-content:flex-end;gap:8px;margin:8px 0}
     .symptom-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:11px 0;border-bottom:1px solid #edf1f5}
     .symptom-id{display:flex;align-items:center;gap:10px}.symptom-id .emoji{font-size:25px}
@@ -125,6 +163,9 @@
     .danger-button{border:1px solid #efcaca;background:#fff5f5;color:var(--danger);border-radius:10px}
     @media(max-width:640px){
       .summary-stats{grid-template-columns:repeat(2,1fr)}
+      .summary-stats.compact{grid-template-columns:repeat(4,1fr)}
+      .summary-main-grid{grid-template-columns:1fr 1fr}
+      .summary-symptom-cards{grid-template-columns:repeat(4,1fr)}
       .two-col{grid-template-columns:1fr 1fr}
       .symptom-grid{grid-template-columns:repeat(3,1fr);gap:8px}
       .choice{font-size:12px;padding:8px 2px}
@@ -188,40 +229,53 @@
   </section>
 
   <section class="page" id="page-summary">
-    <div class="card">
-      <div class="summary-head">
-        <button class="small-button" id="summaryPrev">◀</button>
-        <select class="date-display grow" id="monthSelect"></select>
-        <select class="small-button" id="rangeSelect">
-          <option value="month">今月</option>
-          <option value="previous">先月</option>
-          <option value="30days">直近30日</option>
-          <option value="custom">期間指定</option>
-          <option value="all">全期間</option>
-        </select>
-        <button class="small-button" id="summaryNext">▶</button>
+    <div class="summary-switch">
+      <button id="summaryOverallTab" class="active">全体</button>
+      <button id="summarySymptomTab">症状別</button>
+    </div>
+
+    <div class="card summary-range-card">
+      <div class="summary-period-line">
+        <button class="small-button" id="summaryPrev">‹</button>
+        <div class="summary-period-title" id="summaryPeriodTitle"></div>
+        <button class="small-button" id="summaryNext">›</button>
       </div>
-      <div class="inline hidden" id="customRange" style="margin-top:10px">
+      <div class="summary-range-buttons" id="summaryRangeButtons">
+        <button data-months="1">1か月</button>
+        <button data-months="3" class="active">3か月</button>
+        <button data-months="6">6か月</button>
+        <button data-months="12">1年</button>
+        <button data-months="custom">カスタム</button>
+      </div>
+      <div class="inline hidden" id="customRange" style="margin-top:7px">
         <input class="field-control" type="date" id="rangeStart">
         <input class="field-control" type="date" id="rangeEnd">
       </div>
+      <div class="summary-note">← → で、選択中の期間を前後に移動します</div>
     </div>
 
-    <div class="summary-stats" id="summaryStats"></div>
-
-    <div class="two-col" style="margin-top:12px">
-      <div class="card chart-card">
-        <h3>症状割合</h3>
-        <div class="donut" id="donut"></div>
-        <div class="muted" id="symptomLegend"></div>
+    <div id="summaryOverallView">
+      <div class="summary-stats compact" id="summaryStats"></div>
+      <div class="summary-main-grid">
+        <div class="summary-panel">
+          <h3>症状の割合</h3>
+          <div class="summary-donut-wrap">
+            <div class="donut" id="donut"></div>
+            <div class="summary-legend" id="symptomLegend"></div>
+          </div>
+        </div>
+        <div class="summary-panel">
+          <h3>曜日別の症状数</h3>
+          <div id="weekdayBars"></div>
+        </div>
       </div>
-      <div class="card chart-card">
-        <h3>曜日別の症状数</h3>
-        <div id="weekdayBars"></div>
-      </div>
+      <div class="summary-symptom-cards" id="overallSymptomCards"></div>
     </div>
 
-    <div class="two-col" id="extraSummary"></div>
+    <div id="summarySymptomView" class="hidden">
+      <div class="summary-symptom-cards" id="detailSymptomCards"></div>
+      <div class="symptom-detail-box" id="symptomDetailBox"></div>
+    </div>
   </section>
 
   <section class="page" id="page-settings">
@@ -383,7 +437,7 @@ function migrateLegacy() {
     try {
       const old = JSON.parse(raw);
       const migrated = {
-        version: 2.4,
+        version: 2.5,
         symptoms: Array.isArray(old.symptoms) ? old.symptoms : defaultSymptoms,
         records: old.records || {},
         settings: {accent:"#5ba7e5"},
@@ -401,7 +455,7 @@ let state = (() => {
     if (current) return current;
   } catch {}
   return migrateLegacy() || {
-    version:2.4,
+    version:2.5,
     symptoms:defaultSymptoms,
     records:{},
     settings:{accent:"#5ba7e5"},
@@ -413,6 +467,9 @@ state = normalizeState(state);
 let selectedDate = new Date();
 let calendarMonth = new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
 let summaryMonth = new Date(calendarMonth);
+let summaryRangeMonths = 3;
+let summaryView = "overall";
+let selectedSummarySymptomId = null;
 let selectedSymptoms = new Set();
 let extraValues = {};
 let selectedEmoji = "😊";
@@ -447,7 +504,7 @@ function normalizeState(source){
     };
   });
   return {
-    version:2.4,
+    version:2.5,
     symptoms,
     records,
     settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || []},
@@ -604,82 +661,107 @@ $("#editFromDetail").onclick=()=>{
   renderInput();
 };
 
+function summaryDateBounds(){
+  if(summaryRangeMonths === "custom"){
+    const start = $("#rangeStart").value;
+    const end = $("#rangeEnd").value;
+    return start && end ? {start,end} : null;
+  }
+  const months = Number(summaryRangeMonths);
+  const endDate = new Date(summaryMonth.getFullYear(), summaryMonth.getMonth()+1, 0);
+  const startDate = new Date(summaryMonth.getFullYear(), summaryMonth.getMonth()-months+1, 1);
+  return {start:iso(startDate),end:iso(endDate)};
+}
 function selectedSummaryEntries(){
-  const mode = $("#rangeSelect").value;
-  const entries = Object.entries(state.records).sort(([a],[b])=>a.localeCompare(b));
-  if(mode==="all") return entries;
-  if(mode==="30days"){
-    const end = new Date(); const start = new Date(); start.setDate(end.getDate()-29);
-    return entries.filter(([d])=>{const x=parseDate(d);return x>=new Date(start.getFullYear(),start.getMonth(),start.getDate())&&x<=new Date(end.getFullYear(),end.getMonth(),end.getDate(),23,59,59)});
-  }
-  if(mode==="custom"){
-    const s = $("#rangeStart").value, e = $("#rangeEnd").value;
-    if(!s || !e) return [];
-    return entries.filter(([d])=>d>=s && d<=e);
-  }
-  let y=summaryMonth.getFullYear(), m=summaryMonth.getMonth();
-  if(mode==="previous"){ const d=new Date(y,m-1,1);y=d.getFullYear();m=d.getMonth(); }
-  return entries.filter(([d])=>{const x=parseDate(d);return x.getFullYear()===y&&x.getMonth()===m;});
+  const bounds = summaryDateBounds();
+  if(!bounds) return [];
+  return Object.entries(state.records).filter(([d])=>d>=bounds.start && d<=bounds.end).sort(([a],[b])=>a.localeCompare(b));
+}
+function summaryPeriodLabel(){
+  const bounds=summaryDateBounds();
+  if(!bounds) return "期間を選択";
+  const a=parseDate(bounds.start), b=parseDate(bounds.end);
+  if(a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth()) return `${a.getFullYear()}年${a.getMonth()+1}月`;
+  if(a.getFullYear()===b.getFullYear()) return `${a.getFullYear()}年${a.getMonth()+1}月〜${b.getMonth()+1}月（${summaryRangeMonths}か月）`;
+  return `${a.getFullYear()}/${a.getMonth()+1}〜${b.getFullYear()}/${b.getMonth()+1}`;
+}
+function getSummaryData(){
+  const entries=selectedSummaryEntries();
+  const all=entries.flatMap(([date,record])=>(record.symptoms||[]).map(x=>({...x,date,memo:record.memo||""})));
+  const counts={}; all.forEach(x=>counts[x.id]=(counts[x.id]||0)+1);
+  const weekdays=[0,0,0,0,0,0,0]; all.forEach(x=>weekdays[parseDate(x.date).getDay()]++);
+  const uniqueDaysBySymptom={};
+  state.symptoms.forEach(s=>uniqueDaysBySymptom[s.id]=new Set(all.filter(x=>x.id===s.id).map(x=>x.date)).size);
+  return {entries,all,counts,weekdays,uniqueDaysBySymptom};
+}
+function renderOverallSummary(data){
+  const {entries,all,counts,weekdays,uniqueDaysBySymptom}=data;
+  const bounds=summaryDateBounds();
+  const periodDays=bounds?Math.round((parseDate(bounds.end)-parseDate(bounds.start))/86400000)+1:0;
+  const top=Object.entries(uniqueDaysBySymptom).sort((a,b)=>b[1]-a[1])[0];
+  const maxWeek=Math.max(...weekdays,0), topWeek=maxWeek?weekdays.indexOf(maxWeek):-1;
+  $("#summaryStats").innerHTML=`
+    <div class="stat">📅 集計期間<b>${periodDays}日間</b></div>
+    <div class="stat">📋 記録した症状数<b>${all.length}件</b></div>
+    <div class="stat">📌 最多症状<b>${top&&top[1]?(state.symptoms.find(s=>s.id===top[0])?.emoji||"")+" "+(state.symptoms.find(s=>s.id===top[0])?.name||top[0])+"<br>"+top[1]+"日":"なし"}</b></div>
+    <div class="stat">🗓️ 多かった曜日<b>${topWeek>=0?"日月火水木金土"[topWeek]+"曜日<br>"+maxWeek+"件":"なし"}</b></div>`;
+  const palette=["#ef5350","#ff9800","#2f80ed","#4caf50","#ab47bc","#26a69a","#8d6e63","#78909c"];
+  const total=Math.max(1,all.length); let cursor=0,segments=[];
+  state.symptoms.forEach((s,i)=>{const n=counts[s.id]||0;if(!n)return;const end=cursor+n/total*100;segments.push(`${palette[i%palette.length]} ${cursor}% ${end}%`);cursor=end;});
+  $("#donut").style.background=all.length?`conic-gradient(${segments.join(",")})`:"#e8eef3";
+  $("#symptomLegend").innerHTML=state.symptoms.map((s,i)=>{const n=counts[s.id]||0;const pct=all.length?Math.round(n/all.length*1000)/10:0;return `<div><span style="color:${palette[i%palette.length]}">●</span> ${s.emoji} ${s.name}　${n}件 (${pct}%)</div>`}).join("");
+  const max=Math.max(1,...weekdays);
+  $("#weekdayBars").innerHTML=weekdays.map((n,i)=>`<div class="bar-row"><span>${"日月火水木金土"[i]}</span><div class="bar"><span style="width:${n/max*100}%"></span></div><b>${n}</b></div>`).join("");
+  $("#overallSymptomCards").innerHTML=state.symptoms.slice(0,8).map((s,i)=>`<button class="summary-symptom-card" data-summary-id="${s.id}">${s.emoji} ${s.name}<b style="color:${palette[i%palette.length]}">${uniqueDaysBySymptom[s.id]||0}日</b></button>`).join("");
+  $$("#overallSymptomCards [data-summary-id]").forEach(b=>b.onclick=()=>{selectedSummarySymptomId=b.dataset.summaryId;summaryView="symptom";renderSummary();});
+}
+function renderSymptomSummary(data){
+  if(!selectedSummarySymptomId || !state.symptoms.some(s=>s.id===selectedSummarySymptomId)) selectedSummarySymptomId=state.symptoms[0]?.id;
+  const symptom=state.symptoms.find(s=>s.id===selectedSummarySymptomId);
+  $("#detailSymptomCards").innerHTML=state.symptoms.slice(0,8).map(s=>`<button class="summary-symptom-card ${s.id===selectedSummarySymptomId?"active":""}" data-detail-id="${s.id}">${s.emoji} ${s.name}<b>${data.uniqueDaysBySymptom[s.id]||0}日</b></button>`).join("");
+  $$("#detailSymptomCards [data-detail-id]").forEach(b=>b.onclick=()=>{selectedSummarySymptomId=b.dataset.detailId;renderSymptomSummary(data);});
+  const rows=data.all.filter(x=>x.id===selectedSummarySymptomId);
+  const days=[...new Set(rows.map(x=>x.date))];
+  const scaleValues=rows.map(x=>Number(x.extra?.value)).filter(n=>n>=1&&n<=10);
+  const avg=scaleValues.length?(scaleValues.reduce((a,b)=>a+b,0)/scaleValues.length).toFixed(1):"－";
+  const highest=scaleValues.length?Math.max(...scaleValues):"－";
+  const buckets=[0,0,0,0]; scaleValues.forEach(n=>buckets[n<=3?0:n<=6?1:n<=8?2:3]++);
+  const symptomWeek=[0,0,0,0,0,0,0]; days.forEach(d=>symptomWeek[parseDate(d).getDay()]++);
+  const monthCounts={}; days.forEach(d=>{const x=parseDate(d);const k=`${x.getFullYear()}/${x.getMonth()+1}`;monthCounts[k]=(monthCounts[k]||0)+1;});
+  const months=Object.entries(monthCounts).slice(-6), monthMax=Math.max(1,...months.map(x=>x[1]));
+  const recentMemos=data.entries.filter(([d,r])=>(r.symptoms||[]).some(x=>x.id===selectedSummarySymptomId)&&r.memo).slice(-2).reverse();
+  const distMax=Math.max(1,...buckets), weekMax=Math.max(1,...symptomWeek);
+  const detailDistribution=scaleValues.length?buckets.map((n,i)=>`<div class="distribution-row"><span>${["1〜3","4〜6","7〜8","9〜10"][i]}</span><div class="bar"><span style="width:${n/distMax*100}%;background:${["#4caf50","#ff9800","#ef5350","#d32f2f"][i]}"></span></div><b>${n}日</b></div>`).join(""):`<div class="muted">度合の記録はありません</div>`;
+  $("#symptomDetailBox").innerHTML=`
+    <div class="symptom-detail-head"><span>${symptom?.emoji||""} ${symptom?.name||"症状"}</span><span>発生日数：${days.length}日</span></div>
+    <div class="detail-stat-grid">
+      <div class="detail-mini-stat">平均度合<b>${avg}${avg!=="－"?" / 10":""}</b></div>
+      <div class="detail-mini-stat">最高度合<b>${highest}${highest!=="－"?" / 10":""}</b></div>
+      <div class="detail-mini-stat">期間内割合<b>${data.entries.length?Math.round(days.length/data.entries.length*1000)/10:0}%</b></div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-panel"><h4>度合分布</h4>${detailDistribution}</div>
+      <div class="detail-panel"><h4>曜日別の発生日数</h4>${symptomWeek.map((n,i)=>`<div class="bar-row"><span>${"日月火水木金土"[i]}</span><div class="bar"><span style="width:${n/weekMax*100}%"></span></div><b>${n}</b></div>`).join("")}</div>
+    </div>
+    <div class="detail-panel" style="margin-top:7px;min-height:82px"><h4>月別の推移（発生日数）</h4><div class="mini-month-bars">${months.length?months.map(([m,n])=>`<div class="mini-month-col"><b>${n}日</b><div class="mini-month-bar" style="height:${Math.max(4,n/monthMax*43)}px"></div>${m}</div>`).join(""):'<span class="muted">記録はありません</span>'}</div></div>
+    ${recentMemos.length?`<div class="summary-memo"><b>📝 メモ（${symptom?.name||"症状"}）</b><br>${recentMemos.map(([d,r])=>`${d}：${String(r.memo).replaceAll("<","&lt;")}`).join("<br>")}</div>`:""}`;
 }
 function renderSummary(){
-  let options = "";
-  for(let i=-12;i<=12;i++){
-    const d = new Date(); d.setMonth(d.getMonth()+i);
-    const value = `${d.getFullYear()}-${d.getMonth()}`;
-    options += `<option value="${value}" ${d.getFullYear()===summaryMonth.getFullYear()&&d.getMonth()===summaryMonth.getMonth()?"selected":""}>${d.getFullYear()}年${d.getMonth()+1}月</option>`;
-  }
-  $("#monthSelect").innerHTML = options;
-  $("#customRange").classList.toggle("hidden", $("#rangeSelect").value!=="custom");
-
-  const entries = selectedSummaryEntries();
-  const all = entries.flatMap(([date,record])=>(record.symptoms||[]).map(x=>({...x,date})));
-  const counts = {};
-  all.forEach(x=>counts[x.id]=(counts[x.id]||0)+1);
-  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-  const weekdays = [0,0,0,0,0,0,0];
-  all.forEach(x=>weekdays[parseDate(x.date).getDay()]++);
-
-  $("#summaryStats").innerHTML = `
-    <div class="stat">📅 記録日数<b>${entries.length}日</b></div>
-    <div class="stat">📋 症状数<b>${all.length}件</b></div>
-    <div class="stat">📌 最多症状<b>${top ? (state.symptoms.find(s=>s.id===top[0])?.name||top[0])+" "+top[1]+"件" : "なし"}</b></div>
-    <div class="stat">🗓️ 多かった曜日<b>${all.length ? "日月火水木金土"[weekdays.indexOf(Math.max(...weekdays))]+"曜日" : "なし"}</b></div>`;
-
-  const palette = ["#5ba7e5","#7ebf9a","#e7b25e","#b292d3","#e7a2b4","#7dc7c4","#a7a7a7","#df7f63"];
-  let cursor=0, segments=[];
-  const total = Math.max(1, all.length);
-  Object.entries(counts).forEach(([id,n],i)=>{
-    const start=cursor, end=cursor+n/total*100; cursor=end;
-    segments.push(`${palette[i%palette.length]} ${start}% ${end}%`);
-  });
-  $("#donut").style.background = counts && Object.keys(counts).length ? `conic-gradient(${segments.join(",")})` : "#e8eef3";
-  $("#symptomLegend").innerHTML = state.symptoms.map((s,i)=>`${s.emoji} ${s.name}：${counts[s.id]||0}件`).join("<br>");
-
-  const max = Math.max(1,...weekdays);
-  $("#weekdayBars").innerHTML = weekdays.map((n,i)=>`<div class="bar-row"><span>${"日月火水木金土"[i]}</span><div class="bar"><span style="width:${n/max*100}%"></span></div><b>${n}</b></div>`).join("");
-
-  let extras = "";
-  state.symptoms.filter(s=>s.extra.type!=="none").forEach(s=>{
-    const values = all.filter(x=>x.id===s.id).map(x=>x.extra||{});
-    if(!values.length) return;
-    let body = "";
-    if(s.extra.type==="scale10"){
-      const buckets=[0,0,0];
-      values.forEach(v=>{const n=Number(v.value);if(!n)return;if(n<=3)buckets[0]++;else if(n<=6)buckets[1]++;else buckets[2]++;});
-      body=`1〜3：${buckets[0]}件<br>4〜6：${buckets[1]}件<br>7〜10：${buckets[2]}件`;
-    }else{
-      const c={};
-      values.forEach(v=>Object.values(v).flat().forEach(z=>{if(z)c[z]=(c[z]||0)+1;}));
-      body=Object.entries(c).map(([k,n])=>`${k}：${n}件`).join("<br>");
-    }
-    extras += `<div class="card chart-card"><h3>${s.emoji} ${s.name}</h3>${body||'<span class="muted">記録なし</span>'}</div>`;
-  });
-  $("#extraSummary").innerHTML = extras;
+  $("#summaryOverallTab").classList.toggle("active",summaryView==="overall");
+  $("#summarySymptomTab").classList.toggle("active",summaryView==="symptom");
+  $("#summaryOverallView").classList.toggle("hidden",summaryView!=="overall");
+  $("#summarySymptomView").classList.toggle("hidden",summaryView!=="symptom");
+  $("#customRange").classList.toggle("hidden",summaryRangeMonths!=="custom");
+  $$("#summaryRangeButtons button").forEach(b=>b.classList.toggle("active",String(summaryRangeMonths)===b.dataset.months));
+  $("#summaryPeriodTitle").textContent=summaryPeriodLabel();
+  const data=getSummaryData();
+  if(summaryView==="overall") renderOverallSummary(data); else renderSymptomSummary(data);
 }
-$("#summaryPrev").onclick=()=>{summaryMonth.setMonth(summaryMonth.getMonth()-1);renderSummary();};
-$("#summaryNext").onclick=()=>{summaryMonth.setMonth(summaryMonth.getMonth()+1);renderSummary();};
-$("#monthSelect").onchange=e=>{const [y,m]=e.target.value.split("-").map(Number);summaryMonth=new Date(y,m,1);renderSummary();};
-$("#rangeSelect").onchange=renderSummary;
+$("#summaryOverallTab").onclick=()=>{summaryView="overall";renderSummary();};
+$("#summarySymptomTab").onclick=()=>{summaryView="symptom";renderSummary();};
+$$("#summaryRangeButtons button").forEach(b=>b.onclick=()=>{summaryRangeMonths=b.dataset.months==="custom"?"custom":Number(b.dataset.months);renderSummary();});
+$("#summaryPrev").onclick=()=>{if(summaryRangeMonths!=="custom")summaryMonth.setMonth(summaryMonth.getMonth()-Number(summaryRangeMonths));renderSummary();};
+$("#summaryNext").onclick=()=>{if(summaryRangeMonths!=="custom")summaryMonth.setMonth(summaryMonth.getMonth()+Number(summaryRangeMonths));renderSummary();};
 $("#rangeStart").onchange=renderSummary;
 $("#rangeEnd").onchange=renderSummary;
 
