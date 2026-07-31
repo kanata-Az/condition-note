@@ -1,4 +1,4 @@
-const CACHE = "condition-note-v2.3-cache-1";
+const CACHE = "condition-note-v2.3.1-cache-1";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", event => {
@@ -32,13 +32,19 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
-    if (cached) return cached;
-    const response = await fetch(event.request);
-    if (response.ok && new URL(event.request.url).origin === self.location.origin) {
-      const cache = await caches.open(CACHE);
-      cache.put(event.request, response.clone());
+    const sameOrigin = new URL(event.request.url).origin === self.location.origin;
+    if (sameOrigin) {
+      try {
+        const response = await fetch(event.request, {cache: "no-store"});
+        if (response.ok) {
+          const cache = await caches.open(CACHE);
+          cache.put(event.request, response.clone());
+        }
+        return response;
+      } catch {
+        return (await caches.match(event.request)) || Response.error();
+      }
     }
-    return response;
+    return fetch(event.request);
   })());
 });

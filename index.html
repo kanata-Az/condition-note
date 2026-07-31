@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.2.3</title>
+  <title>コンディションノート Ver.2.3.1</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -286,7 +286,7 @@
   </section>
 
   <section class="page" id="page-other-settings">
-    <h2>その他設定</h2>
+    <div class="calendar-head"><h2 class="grow">その他設定</h2><span class="muted">Ver.2.3.1</span></div>
     <div class="settings-section">
       <div class="settings-heading"><span class="settings-icon">🎨</span><span>テーマカラー</span></div>
       <div class="color-palette" id="colorPalette"></div>
@@ -365,7 +365,7 @@ function migrateLegacy() {
     try {
       const old = JSON.parse(raw);
       const migrated = {
-        version: 2.3,
+        version: 2.31,
         symptoms: Array.isArray(old.symptoms) ? old.symptoms : defaultSymptoms,
         records: old.records || {},
         settings: {accent:"#5ba7e5"},
@@ -383,7 +383,7 @@ let state = (() => {
     if (current) return current;
   } catch {}
   return migrateLegacy() || {
-    version:2.3,
+    version:2.31,
     symptoms:defaultSymptoms,
     records:{},
     settings:{accent:"#5ba7e5"},
@@ -430,7 +430,7 @@ function normalizeState(source){
     };
   });
   return {
-    version:2.3,
+    version:2.31,
     symptoms,
     records,
     settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || []},
@@ -856,7 +856,7 @@ function renderAllExportHistory(){
   $$(".delete-history").forEach(b=>b.onclick=()=>{if(confirm("この出力履歴を削除しますか？")){state.exportHistory=state.exportHistory.filter(x=>String(x.id)!==b.dataset.id);persist();renderAllExportHistory();}});
 }
 
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js", {scope:"/"}).catch(()=>{}));}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js?v=231", {scope:"/", updateViaCache:"none"}).catch(()=>{}));}
 applyTheme();
 initExportDates();
 renderInput();
