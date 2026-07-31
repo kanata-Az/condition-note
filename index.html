@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.2.3</title>
+  <title>コンディションノート Ver.2.4.0</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -26,15 +26,15 @@
     html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     button,input,select,textarea{font:inherit;color:inherit}
     button{cursor:pointer}
-    .app{max-width:860px;margin:0 auto;padding:8px 12px calc(72px + env(safe-area-inset-bottom))}
-    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:36px}
-    .brand{font-size:18px;font-weight:800;color:var(--accent);line-height:1.1}
-    .icon-button{border:0;background:transparent;font-size:20px;padding:6px}
-    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:#fff;padding:3px;border-radius:13px;box-shadow:var(--shadow);margin-bottom:10px}
-    .tab{border:0;background:transparent;padding:8px 5px;border-radius:10px;color:#66798b;font-size:13px}
+    .app{max-width:860px;margin:0 auto;padding:16px 14px calc(92px + env(safe-area-inset-bottom))}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .brand{font-size:22px;font-weight:800;color:var(--accent)}
+    .icon-button{border:0;background:transparent;font-size:23px;padding:8px}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#fff;padding:4px;border-radius:15px;box-shadow:var(--shadow);margin-bottom:16px}
+    .tab{border:0;background:transparent;padding:11px 6px;border-radius:11px;color:#66798b}
     .tab.active{background:var(--accent);color:#fff;font-weight:700}
     .page{display:none}.page.active{display:block}
-    .card{background:var(--card);border-radius:16px;padding:12px;box-shadow:var(--shadow);margin-bottom:10px}
+    .card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
     h2{font-size:21px;margin:0 0 12px} h3{font-size:16px;margin:0 0 10px}
     .muted{color:var(--muted);font-size:13px}
     .input-date-card{padding:12px 14px}
@@ -66,11 +66,11 @@
     .inline{display:flex;gap:8px}.inline>*{flex:1}
     .calendar-head,.summary-head{display:flex;align-items:center;gap:8px}
     .grow{flex:1}
-    .weekday,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));width:100%;table-layout:fixed}
+    .weekday,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr)}
     .weekday div{text-align:center;font-size:12px;padding:6px}
-    .day{min-width:0;width:100%;height:62px;overflow:hidden;border-top:1px solid #e7eef4;padding:4px 2px;font-size:11px}
+    .day{min-height:72px;border-top:1px solid #e7eef4;padding:5px;font-size:12px}
     .day.other{opacity:.35}.day.today{background:#eef7ff;border-radius:9px}.day{cursor:pointer;border-radius:10px;transition:.15s}.day.selected{background:var(--accent);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent);font-weight:700}.day.selected .day-icons{filter:none}.day.has-record{cursor:pointer}
-    .day-icons{font-size:14px;line-height:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,16px);place-items:center;gap:1px;margin-top:2px;overflow:hidden}.day-icons span{min-width:0;text-align:center}.day-more{font-weight:900;font-size:15px}
+    .day-icons{font-size:16px;line-height:1.05;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:4px}
     .summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     .stat{background:#fff;border-radius:14px;padding:10px;text-align:center;border:1px solid #e3ebf2}
     .stat b{display:block;font-size:18px;margin-top:4px}
@@ -102,22 +102,33 @@
     .toast.show{display:block}
     .history-item{border-top:1px solid var(--line);padding:10px 0}
     .detail-list{line-height:1.8}
-    .calendar-symptom-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.calendar-symptom-list.compact-eight .calendar-symptom-item:nth-child(n+9){display:none}
-    .calendar-symptom-item{border:1px solid var(--line);background:#fff;border-radius:11px;padding:6px 3px;text-align:center;font-size:10px;min-width:0}.calendar-symptom-item.active{background:var(--accent-soft);border-color:var(--accent)}
-    .calendar-symptom-item .emoji{font-size:20px}
+    .calendar-symptom-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .calendar-symptom-item{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 6px;text-align:center;font-size:12px}
+    .calendar-symptom-item .emoji{font-size:23px}
     .move-buttons{display:none;gap:4px}.reordering .move-buttons{display:flex}.move-buttons button{padding:6px 9px}
-
-    .settings-title-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}.settings-title-row h2{margin:0;flex:1}.other-settings-button{white-space:nowrap}
-    .other-section{padding:10px 0;border-top:1px solid var(--line)}.other-section:first-of-type{border-top:0;padding-top:0}.other-section h3{margin-bottom:7px}
-    .theme-pills{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.theme-pill{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 2px;font-size:11px}.theme-pill.active{border:2px solid var(--accent);background:var(--accent-soft)}
-    .backup-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.compact-field{margin:6px 0}.compact-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.compact-field input,.compact-field select{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px}
-    .check-row{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;margin:7px 0}.history-head{display:flex;align-items:center;gap:8px}.history-head h3{flex:1;margin:0}.history-actions{display:flex;gap:6px;margin-top:6px}.history-actions button{padding:6px 8px;font-size:11px}.back-button{margin-bottom:8px}.inline-detail{display:none}.inline-detail.show{display:block}.detail-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.detail-chip{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,#fff);border-radius:10px;padding:7px;font-size:11px;min-width:0}.detail-memo{margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-size:12px}.history-empty{color:var(--muted);font-size:12px;padding:8px 0}
+    .settings-nav-button{display:flex;align-items:center;justify-content:space-between;width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 14px;font-weight:700}
+    .compact-card{padding:13px 14px;margin-bottom:10px}
+    .compact-card h3{margin-bottom:8px}
+    .theme-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+    .theme-chip{border:2px solid transparent;background:#f6f8fa;border-radius:12px;padding:8px 3px;font-size:12px}
+    .theme-chip.active{border-color:var(--accent);background:var(--accent-soft);font-weight:700}
+    .theme-dot{width:21px;height:21px;border-radius:50%;display:block;margin:0 auto 4px;border:1px solid #0001}
+    .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .export-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+    .check-chip{display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid var(--line);border-radius:10px;padding:8px 3px;font-size:12px;background:#fff}
+    .check-chip input{width:auto;margin:0}
+    .history-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .history-actions{display:flex;gap:6px;margin-top:7px}
+    .history-actions button{padding:7px 9px;font-size:12px}
+    .back-title{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .back-title h2{margin:0}
+    .danger-button{border:1px solid #efcaca;background:#fff5f5;color:var(--danger);border-radius:10px}
     @media(max-width:640px){
       .summary-stats{grid-template-columns:repeat(2,1fr)}
       .two-col{grid-template-columns:1fr 1fr}
       .symptom-grid{grid-template-columns:repeat(3,1fr);gap:8px}
       .choice{font-size:12px;padding:8px 2px}
-      .day{height:58px}
+      .day{min-height:64px}
       .calendar-symptom-list{grid-template-columns:repeat(4,1fr)}
     }
   </style>
@@ -172,11 +183,7 @@
     </div>
     <div class="card">
       <h3>症状一覧</h3>
-      <div class="calendar-symptom-list compact-eight" id="calendarSymptomList"></div>
-    </div>
-    <div class="card inline-detail" id="calendarDetail">
-      <h3 id="calendarDetailTitle"></h3>
-      <div id="calendarDetailBody"></div>
+      <div class="calendar-symptom-list" id="calendarSymptomList"></div>
     </div>
   </section>
 
@@ -219,47 +226,117 @@
 
   <section class="page" id="page-settings">
     <div class="card">
-      <div class="settings-title-row">
-        <h2>症状の設定</h2>
-        <button class="small-button other-settings-button" id="openOtherSettings">その他設定</button>
-      </div>
-      <div class="muted">症状の追加・編集・並び替え</div>
+      <h2>設定</h2>
+      <h3>症状の管理</h3>
+      <div class="muted">アイコン、名称、追加情報の編集・並び替え</div>
       <div class="section-tools">
         <button class="small-button" id="editModeButton">✏️ 編集</button>
         <button class="small-button" id="reorderModeButton">☰ 並び替え</button>
       </div>
       <div id="symptomList"></div>
-      <button class="small-button full" style="margin-top:10px" id="addSymptomButton">＋ 症状を追加</button>
+      <button class="small-button full" style="margin-top:12px" id="addSymptomButton">＋ 症状を追加</button>
+
       <div class="add-box" id="symptomEditor">
-        <div class="inline"><div class="field"><label>アイコン</label><button class="date-display" id="emojiButton">😊</button></div><div class="field"><label>名称</label><input id="symptomName" placeholder="例：耳鳴り"></div></div>
-        <div class="field"><label>追加情報</label><select id="extraType"><option value="none">なし</option><option value="scale10">数値（1〜10）</option><option value="side">左右選択</option><option value="pitch">高低選択</option><option value="side_pitch">左右＋高低</option><option value="single">単一選択</option><option value="multi">複数選択</option></select></div>
-        <div class="field hidden" id="customOptionsField"><label>選択肢（1行に1つ）</label><textarea id="customOptions" placeholder="回転&#10;ふらつき&#10;浮遊感"></textarea></div>
-        <div class="inline"><button class="primary" id="saveSymptom">保存</button><button class="small-button" id="cancelSymptom">キャンセル</button></div>
+        <div class="inline">
+          <div class="field">
+            <label>アイコン</label>
+            <button class="date-display" id="emojiButton">😊</button>
+          </div>
+          <div class="field">
+            <label>名称</label>
+            <input id="symptomName" placeholder="例：耳鳴り">
+          </div>
+        </div>
+        <div class="field">
+          <label>追加情報</label>
+          <select id="extraType">
+            <option value="none">なし</option>
+            <option value="scale10">数値（1〜10）</option>
+            <option value="side">左右選択</option>
+            <option value="pitch">高低選択</option>
+            <option value="side_pitch">左右＋高低</option>
+            <option value="single">単一選択</option>
+            <option value="multi">複数選択</option>
+          </select>
+        </div>
+        <div class="field hidden" id="customOptionsField">
+          <label>選択肢（1行に1つ）</label>
+          <textarea id="customOptions" placeholder="回転&#10;ふらつき&#10;浮遊感"></textarea>
+        </div>
+        <div class="inline">
+          <button class="primary" id="saveSymptom">保存</button>
+          <button class="small-button" id="cancelSymptom">キャンセル</button>
+        </div>
       </div>
     </div>
-  </section>
 
+    <div class="card compact-card">
+      <button class="settings-nav-button" id="openOtherSettings">
+        <span>⚙️ その他設定</span><span>›</span>
+      </button>
+    </div>
+  </section>
   <section class="page" id="page-other-settings">
-    <button class="small-button back-button" id="backToSymptoms">← 症状の設定へ戻る</button>
-    <div class="card">
-      <div class="settings-title-row"><h2>その他設定</h2><span class="muted">Ver.2.3</span></div>
-      <div class="other-section"><h3>テーマカラー</h3><div class="theme-pills" id="themePills"></div><select id="themeColor" class="hidden"><option value="#5ba7e5">淡い青</option><option value="#7ebf9a">淡い緑</option><option value="#b292d3">淡い紫</option><option value="#e7a2b4">淡い桃</option></select></div>
-      <div class="other-section"><h3>バックアップ・復元</h3><div class="backup-actions"><button class="small-button" id="backupButton">バックアップを作成</button><label class="small-button" style="text-align:center">バックアップから復元<input type="file" id="restoreFile" accept=".json" hidden></label></div></div>
-      <div class="other-section"><h3>まとめテキスト出力</h3>
-        <div class="inline"><div class="compact-field"><label>開始日</label><input type="date" id="exportStart"></div><div class="compact-field"><label>終了日</label><input type="date" id="exportEnd"></div></div>
-        <div class="check-row"><label><input type="checkbox" id="exportSymptoms" checked> 症状</label><label><input type="checkbox" id="exportDetails" checked> 詳細</label><label><input type="checkbox" id="exportMemo" checked> メモ</label></div>
-        <button class="primary full" id="textExportButton">テキストを作成・コピー</button>
+    <div class="back-title">
+      <button class="small-button" id="backToSettings">‹ 戻る</button>
+      <h2>その他設定</h2>
+    </div>
+
+    <div class="card compact-card">
+      <h3>🎨 テーマカラー</h3>
+      <div class="theme-buttons" id="themeButtons">
+        <button class="theme-chip" data-color="#5ba7e5"><span class="theme-dot" style="background:#5ba7e5"></span>淡い青</button>
+        <button class="theme-chip" data-color="#7ebf9a"><span class="theme-dot" style="background:#7ebf9a"></span>淡い緑</button>
+        <button class="theme-chip" data-color="#b292d3"><span class="theme-dot" style="background:#b292d3"></span>淡い紫</button>
+        <button class="theme-chip" data-color="#e7a2b4"><span class="theme-dot" style="background:#e7a2b4"></span>淡い桃</button>
       </div>
-      <div class="other-section"><div class="history-head"><h3>出力履歴</h3><button class="small-button hidden" id="showAllHistory">すべての履歴を見る</button></div><div id="exportHistory"></div></div>
+    </div>
+
+    <div class="card compact-card">
+      <h3>💾 バックアップ・復元</h3>
+      <div class="action-grid">
+        <button class="small-button" id="backupButton">バックアップ作成</button>
+        <label class="small-button" style="text-align:center">バックアップから復元<input type="file" id="restoreFile" accept=".json" hidden></label>
+      </div>
+    </div>
+
+    <div class="card compact-card">
+      <h3>📄 まとめテキスト出力</h3>
+      <div class="inline">
+        <select class="field-control" id="exportRangeSelect">
+          <option value="month">今月</option>
+          <option value="previous">先月</option>
+          <option value="30days">直近30日</option>
+          <option value="custom">期間指定</option>
+          <option value="all">全期間</option>
+        </select>
+      </div>
+      <div class="inline hidden" id="exportCustomRange" style="margin-top:7px">
+        <input class="field-control" type="date" id="exportRangeStart">
+        <input class="field-control" type="date" id="exportRangeEnd">
+      </div>
+      <div class="export-options">
+        <label class="check-chip"><input type="checkbox" id="exportSymptoms" checked>症状</label>
+        <label class="check-chip"><input type="checkbox" id="exportDetails" checked>詳細</label>
+        <label class="check-chip"><input type="checkbox" id="exportMemo" checked>メモ</label>
+      </div>
+      <button class="primary full" id="textExportButton">テキストを作成・コピー</button>
+    </div>
+
+    <div class="card compact-card">
+      <div class="history-head"><h3>🕘 出力履歴</h3><button class="small-button hidden" id="openAllHistory">すべての履歴を見る</button></div>
+      <div id="exportHistory"></div>
     </div>
   </section>
 
-  <section class="page" id="page-history">
-    <button class="small-button back-button" id="backToOtherSettings">← その他設定へ戻る</button>
-    <div class="card"><h2>出力履歴一覧</h2><div id="allExportHistory"></div></div>
+  <section class="page" id="page-export-history">
+    <div class="back-title">
+      <button class="small-button" id="backToOtherSettings">‹ 戻る</button>
+      <h2>出力履歴</h2>
+    </div>
+    <div class="card compact-card" id="allExportHistory"></div>
   </section>
 </div>
-
 
 <div class="modal" id="emojiModal">
   <div class="sheet">
@@ -306,7 +383,7 @@ function migrateLegacy() {
     try {
       const old = JSON.parse(raw);
       const migrated = {
-        version: 2,
+        version: 2.4,
         symptoms: Array.isArray(old.symptoms) ? old.symptoms : defaultSymptoms,
         records: old.records || {},
         settings: {accent:"#5ba7e5"},
@@ -324,7 +401,7 @@ let state = (() => {
     if (current) return current;
   } catch {}
   return migrateLegacy() || {
-    version:2.3,
+    version:2.4,
     symptoms:defaultSymptoms,
     records:{},
     settings:{accent:"#5ba7e5"},
@@ -343,7 +420,6 @@ let editMode = false;
 let reorderMode = false;
 let editingSymptomIndex = null;
 let detailDate = null;
-let calendarSymptomFilter = null;
 
 const iso = d => {
   const x = new Date(d.getTime() - d.getTimezoneOffset()*60000);
@@ -371,7 +447,7 @@ function normalizeState(source){
     };
   });
   return {
-    version:2.3,
+    version:2.4,
     symptoms,
     records,
     settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || []},
@@ -389,7 +465,7 @@ function toast(message){
 }
 function applyTheme(){
   document.documentElement.style.setProperty("--accent", state.settings.accent || "#5ba7e5");
-  if($("#themeColor")) $("#themeColor").value = state.settings.accent || "#5ba7e5";
+  $$(".theme-chip").forEach(b=>b.classList.toggle("active", b.dataset.color===(state.settings.accent || "#5ba7e5")));
 }
 function showPage(name){
   $$(".page").forEach(p=>p.classList.remove("active"));
@@ -399,7 +475,7 @@ function showPage(name){
   if(name==="summary") renderSummary();
   if(name==="settings") renderSettings();
   if(name==="other-settings") renderOtherSettings();
-  if(name==="history") renderAllExportHistory();
+  if(name==="export-history") renderAllExportHistory();
 }
 $$(".tab").forEach(t=>t.onclick=()=>showPage(t.dataset.page));
 $("#settingsButton").onclick=()=>showPage("settings");
@@ -488,42 +564,22 @@ function renderCalendar(){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const dateKey=iso(d);
     const record = state.records[dateKey];
-    const visibleItems = calendarSymptomFilter ? (record?.symptoms || []).filter(r=>r.id===calendarSymptomFilter) : (record?.symptoms || []);
-    const icons = visibleItems.slice(0,6).map(r=>state.symptoms.find(s=>s.id===r.id)?.emoji || "");
-    const hasMore = visibleItems.length > 6;
-    if(hasMore){ icons.splice(5,1,"＋"); }
+    const icons = (record?.symptoms || []).slice(0,6).map(r=>state.symptoms.find(s=>s.id===r.id)?.emoji || "");
     html += `<div class="day ${d.getMonth()!==m?"other":""} ${dateKey===iso(new Date())?"today":""} ${dateKey===iso(selectedDate)?"selected":""} ${record?"has-record":""}" data-date="${dateKey}">
-      <b>${d.getDate()}</b><div class="day-icons">${icons.map(x=>`<span class="${x==="＋"?"day-more":""}">${x}</span>`).join("")}</div>
+      <b>${d.getDate()}</b><div class="day-icons">${icons.map(x=>`<span>${x}</span>`).join("")}</div>
     </div>`;
   }
   $("#calendarGrid").innerHTML = html;
-  $("#calendarSymptomList").innerHTML = state.symptoms.map(s=>`<button class="calendar-symptom-item ${calendarSymptomFilter===s.id?"active":""}" data-filter="${s.id}"><div class="emoji">${s.emoji}</div><div>${s.name}</div></button>`).join("");
-  $$(".calendar-symptom-item").forEach(button=>button.onclick=()=>{calendarSymptomFilter = calendarSymptomFilter===button.dataset.filter ? null : button.dataset.filter;renderCalendar();});
+  $("#calendarSymptomList").innerHTML = state.symptoms.map(s=>`<div class="calendar-symptom-item"><div class="emoji">${s.emoji}</div><div>${s.name}</div></div>`).join("");
   $$(".day").forEach(day=>day.onclick=()=>{
     selectedDate=parseDate(day.dataset.date);
     calendarMonth=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
     renderCalendar();
-    renderCalendarDetail(day.dataset.date);
+    openDetail(day.dataset.date);
   });
 }
 $("#calendarPrev").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar();};
 $("#calendarNext").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar();};
-
-function renderCalendarDetail(date){
-  detailDate=date;
-  const record=state.records[date];
-  $("#calendarDetailTitle").textContent=formatDate(parseDate(date));
-  const items=(record?.symptoms||[]);
-  let cards=items.map(item=>{
-    const symptom=state.symptoms.find(s=>s.id===item.id);
-    const details=Object.values(item.extra||{}).flat().filter(Boolean).join("／");
-    return `<div class="detail-chip"><b>${symptom?.emoji||""} ${symptom?.name||item.id}</b>${details?`<div>${details}</div>`:""}</div>`;
-  }).join("");
-  let html=cards?`<div class="detail-cards">${cards}</div>`:'<div class="muted">記録はありません</div>';
-  if(record?.memo) html+=`<div class="detail-memo"><b>メモ</b><br>${record.memo.replaceAll("<","&lt;")}</div>`;
-  $("#calendarDetailBody").innerHTML=html;
-  $("#calendarDetail").classList.add("show");
-}
 
 function openDetail(date){
   detailDate = date;
@@ -674,7 +730,6 @@ function renderSettings(){
     };
   });
 }
-
 $("#editModeButton").onclick=()=>{editMode=!editMode;reorderMode=false;renderSettings();};
 $("#reorderModeButton").onclick=()=>{reorderMode=!reorderMode;editMode=false;renderSettings();};
 $("#addSymptomButton").onclick=()=>openSymptomEditor(null);
@@ -727,54 +782,120 @@ $("#keyboardEmoji").onclick=()=>{
   if(value) chooseEmoji([...value][0]||selectedEmoji);
 };
 
-const themeOptions=[{value:"#5ba7e5",label:"淡い青"},{value:"#7ebf9a",label:"淡い緑"},{value:"#b292d3",label:"淡い紫"},{value:"#e7a2b4",label:"淡い桃"}];
+$("#openOtherSettings").onclick=()=>showPage("other-settings");
+$("#backToSettings").onclick=()=>showPage("settings");
+$("#backToOtherSettings").onclick=()=>showPage("other-settings");
+$("#openAllHistory").onclick=()=>showPage("export-history");
+
 function renderOtherSettings(){
-  $("#themePills").innerHTML=themeOptions.map(t=>`<button class="theme-pill ${state.settings.accent===t.value?"active":""}" data-color="${t.value}">${t.label}</button>`).join("");
-  $$(".theme-pill").forEach(b=>b.onclick=()=>{state.settings.accent=b.dataset.color;persist();applyTheme();renderOtherSettings();});
-  const now=new Date(), first=new Date(now.getFullYear(),now.getMonth(),1);
-  if(!$("#exportStart").value) $("#exportStart").value=iso(first);
-  if(!$("#exportEnd").value) $("#exportEnd").value=iso(now);
+  applyTheme();
+  $("#exportCustomRange").classList.toggle("hidden", $("#exportRangeSelect").value!=="custom");
   renderExportHistory();
 }
-$("#openOtherSettings").onclick=()=>showPage("other-settings");
-$("#backToSymptoms").onclick=()=>showPage("settings");
-$("#backToOtherSettings").onclick=()=>showPage("other-settings");
-$("#showAllHistory").onclick=()=>showPage("history");
+$$(".theme-chip").forEach(button=>button.onclick=()=>{
+  state.settings.accent=button.dataset.color;
+  persist();applyTheme();toast("テーマカラーを変更しました");
+});
+$("#exportRangeSelect").onchange=renderOtherSettings;
+
 $("#backupButton").onclick=()=>{
   const payload={...state,exportedAt:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`condition-note-backup-${iso(new Date())}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`condition-note-backup-${iso(new Date())}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast("バックアップを作成しました");
 };
 $("#restoreFile").onchange=async e=>{
-  try{const file=e.target.files?.[0];if(!file)return;const restored=JSON.parse(await file.text());if(!restored.records||!restored.symptoms)throw new Error();state=normalizeState(restored);persist();applyTheme();renderInput();renderSettings();renderOtherSettings();toast("復元しました");}
-  catch{alert("復元できませんでした。バックアップファイルを確認してください。");}
-  e.target.value="";
+  const file=e.target.files?.[0];
+  if(!file) return;
+  try{
+    const restored=JSON.parse(await file.text());
+    if(!restored.records || !restored.symptoms) throw new Error();
+    if(!confirm("現在のデータをバックアップ内容で置き換えますか？")) return;
+    state=normalizeState(restored);
+    persist();applyTheme();renderInput();renderSettings();renderOtherSettings();toast("復元しました");
+  }catch{alert("復元できませんでした。バックアップファイルを確認してください。");}
+  finally{e.target.value="";}
 };
-function entriesForExport(){
-  const start=$("#exportStart").value,end=$("#exportEnd").value;if(!start||!end)return [];
-  return Object.entries(state.records).sort(([a],[b])=>a.localeCompare(b)).filter(([d])=>d>=start&&d<=end);
+
+function selectedExportEntries(){
+  const mode=$("#exportRangeSelect").value;
+  const entries=Object.entries(state.records).sort(([a],[b])=>a.localeCompare(b));
+  if(mode==="all") return entries;
+  if(mode==="30days"){
+    const end=new Date();const start=new Date();start.setDate(end.getDate()-29);
+    const s=iso(start),e=iso(end);return entries.filter(([d])=>d>=s&&d<=e);
+  }
+  if(mode==="custom"){
+    const s=$("#exportRangeStart").value,e=$("#exportRangeEnd").value;
+    if(!s||!e) return [];
+    return entries.filter(([d])=>d>=s&&d<=e);
+  }
+  const base=new Date();
+  if(mode==="previous") base.setMonth(base.getMonth()-1);
+  return entries.filter(([d])=>{const x=parseDate(d);return x.getFullYear()===base.getFullYear()&&x.getMonth()===base.getMonth();});
 }
 function buildExportText(entries,opts){
-  const lines=["コンディションノート 集計レポート",`${$("#exportStart").value}〜${$("#exportEnd").value}`,""];
-  entries.forEach(([date,record])=>{lines.push(formatDate(parseDate(date)));
-    if(opts.symptoms){(record.symptoms||[]).forEach(item=>{const s=state.symptoms.find(x=>x.id===item.id);const extras=opts.details?Object.values(item.extra||{}).flat().filter(Boolean).join("・"):"";lines.push(`・${s?.name||item.id}${extras?`：${extras}`:""}`);});}
-    if(opts.memo&&record.memo)lines.push(`メモ：${record.memo}`);lines.push("");});return lines.join("\n");
+  const lines=["コンディションノート 集計レポート",""];
+  entries.forEach(([date,record])=>{
+    lines.push(formatDate(parseDate(date)));
+    if(opts.symptoms){
+      (record.symptoms||[]).forEach(item=>{
+        const s=state.symptoms.find(x=>x.id===item.id);
+        let line=`・${s?.name||item.id}`;
+        if(opts.details){
+          const extras=Object.values(item.extra||{}).flat().filter(Boolean).join("・");
+          if(extras) line+=`：${extras}`;
+        }
+        lines.push(line);
+      });
+    }
+    if(opts.memo&&record.memo) lines.push(`メモ：${record.memo}`);
+    lines.push("");
+  });
+  return lines.join("\n");
 }
-async function copyText(text){try{await navigator.clipboard.writeText(text);}catch{const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}}
-async function exportText(){
-  const entries=entriesForExport();if(!$("#exportStart").value||!$("#exportEnd").value)return alert("期間を選択してください");if($("#exportStart").value>$("#exportEnd").value)return alert("開始日と終了日を確認してください");
-  const opts={symptoms:$("#exportSymptoms").checked,details:$("#exportDetails").checked,memo:$("#exportMemo").checked};if(!opts.symptoms&&!opts.memo)return alert("出力内容を1つ以上選択してください");
-  const text=buildExportText(entries,opts);await copyText(text);state.exportHistory.unshift({id:"h"+Date.now(),date:new Date().toISOString(),label:`${$("#exportStart").value}〜${$("#exportEnd").value}`,count:entries.length,text,opts});state.exportHistory=state.exportHistory.slice(0,200);persist();renderExportHistory();toast("テキストをコピーしました");
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text);}
+  catch{
+    const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
+  }
 }
-$("#textExportButton").onclick=exportText;
-function historyItem(h,i,full=false){return `<div class="history-item"><b>${h.label}</b><div class="muted">${new Date(h.date).toLocaleString("ja-JP")}・${h.count}日分</div><div class="history-actions"><button class="small-button history-copy" data-index="${i}" data-full="${full}">再コピー</button><button class="small-button history-delete" data-index="${i}" data-full="${full}">削除</button></div></div>`;}
+$("#textExportButton").onclick=async()=>{
+  const entries=selectedExportEntries();
+  if($("#exportRangeSelect").value==="custom"&&(!$("#exportRangeStart").value||!$("#exportRangeEnd").value)) return alert("開始日と終了日を選択してください");
+  const opts={symptoms:$("#exportSymptoms").checked,details:$("#exportDetails").checked,memo:$("#exportMemo").checked};
+  if(!opts.symptoms&&!opts.memo) return alert("出力内容を1つ以上選択してください");
+  const text=buildExportText(entries,opts);
+  await copyText(text);
+  const label=$("#exportRangeSelect").selectedOptions[0].textContent;
+  state.exportHistory ||= [];
+  state.exportHistory.unshift({id:"e"+Date.now(),date:new Date().toISOString(),label,count:entries.length,options:opts,text});
+  persist();renderExportHistory();toast("テキストを作成・コピーしました");
+};
+function historyMarkup(items){
+  if(!items.length) return '<div class="muted">出力履歴はまだありません</div>';
+  return items.map((h,i)=>`<div class="history-item" data-history-id="${h.id||i}"><b>${h.label}</b><div class="muted">${new Date(h.date).toLocaleString("ja-JP")}・${h.count}日分</div><div class="history-actions"><button class="small-button history-copy" data-id="${h.id||i}">再コピー</button><button class="danger-button history-delete" data-id="${h.id||i}">削除</button></div></div>`).join("");
+}
+function findHistory(id){return (state.exportHistory||[]).find((h,i)=>(h.id||String(i))===id);}
+function bindHistoryActions(root){
+  root.querySelectorAll(".history-copy").forEach(b=>b.onclick=async()=>{const h=findHistory(b.dataset.id);if(h){await copyText(h.text||"");toast("履歴のテキストをコピーしました");}});
+  root.querySelectorAll(".history-delete").forEach(b=>b.onclick=()=>{const id=b.dataset.id;if(!confirm("この履歴を削除しますか？")) return;state.exportHistory=(state.exportHistory||[]).filter((h,i)=>(h.id||String(i))!==id);persist();renderExportHistory();renderAllExportHistory();});
+}
 function renderExportHistory(){
-  const list=state.exportHistory||[];$("#showAllHistory").classList.toggle("hidden",list.length<=5);$("#exportHistory").innerHTML=list.length?list.slice(0,5).map((h,i)=>historyItem(h,i,false)).join(""):'<div class="history-empty">まだ履歴はありません</div>';bindHistoryActions(false);
+  const items=(state.exportHistory||[]).slice(0,5);
+  $("#exportHistory").innerHTML=historyMarkup(items);
+  $("#openAllHistory").classList.toggle("hidden",(state.exportHistory||[]).length<=5);
+  bindHistoryActions($("#exportHistory"));
 }
-function renderAllExportHistory(){const list=state.exportHistory||[];$("#allExportHistory").innerHTML=list.length?list.map((h,i)=>historyItem(h,i,true)).join(""):'<div class="history-empty">まだ履歴はありません</div>';bindHistoryActions(true);}
-function bindHistoryActions(full){
-  const root=full?$("#allExportHistory"):$("#exportHistory");root.querySelectorAll(".history-copy").forEach(b=>b.onclick=async()=>{const h=state.exportHistory[Number(b.dataset.index)];if(h?.text){await copyText(h.text);toast("再コピーしました");}});root.querySelectorAll(".history-delete").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.index);if(confirm("この履歴を削除しますか？")){state.exportHistory.splice(i,1);persist();full?renderAllExportHistory():renderExportHistory();}});
+function renderAllExportHistory(){
+  $("#allExportHistory").innerHTML=historyMarkup(state.exportHistory||[]);
+  bindHistoryActions($("#allExportHistory"));
 }
+
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
 applyTheme();
