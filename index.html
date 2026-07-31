@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.2.5.0</title>
+  <title>コンディションノート Ver.2.6.0</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -26,15 +26,15 @@
     html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     button,input,select,textarea{font:inherit;color:inherit}
     button{cursor:pointer}
-    .app{max-width:860px;margin:0 auto;padding:16px 14px calc(92px + env(safe-area-inset-bottom))}
-    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .brand{font-size:22px;font-weight:800;color:var(--accent)}
-    .icon-button{border:0;background:transparent;font-size:23px;padding:8px}
-    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#fff;padding:4px;border-radius:15px;box-shadow:var(--shadow);margin-bottom:16px}
-    .tab{border:0;background:transparent;padding:11px 6px;border-radius:11px;color:#66798b}
+    .app{max-width:860px;margin:0 auto;padding:10px 12px calc(72px + env(safe-area-inset-bottom))}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;min-height:36px}
+    .brand{font-size:19px;font-weight:800;color:var(--accent);line-height:1.1}
+    .icon-button{border:0;background:transparent;font-size:20px;padding:5px}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:#fff;padding:3px;border-radius:13px;box-shadow:var(--shadow);margin-bottom:9px}
+    .tab{border:0;background:transparent;padding:8px 5px;border-radius:10px;color:#66798b;font-size:14px}
     .tab.active{background:var(--accent);color:#fff;font-weight:700}
     .page{display:none}.page.active{display:block}
-    .card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+    .card{background:var(--card);border-radius:16px;padding:13px;box-shadow:var(--shadow);margin-bottom:10px}
     h2{font-size:21px;margin:0 0 12px} h3{font-size:16px;margin:0 0 10px}
     .muted{color:var(--muted);font-size:13px}
     .input-date-card{padding:12px 14px}
@@ -55,22 +55,39 @@
     .emoji{font-size:27px}.symptom-name{font-size:12px;margin-top:3px;line-height:1.25}
     .extra-card{margin-top:10px;padding:11px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,#fff)}
     .extra-card h3{font-size:14px;margin-bottom:8px}
-    .extra-card .field{margin:7px 0}
+    .extra-card .field{margin:5px 0}
     .extra-card .field label{font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px}
-    .option-wrap{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;overflow:visible}
-    .choice{border:1px solid #cbdbe9;border-radius:10px;background:#fff;padding:8px 3px;min-width:0;font-size:13px;white-space:nowrap}
+    .option-wrap{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;overflow:visible}
+    .choice{border:1px solid #cbdbe9;border-radius:9px;background:#fff;padding:8px 2px;min-width:0;font-size:12px;white-space:nowrap}
     .choice.active{background:var(--accent);color:#fff;border-color:var(--accent)}
     .field{margin:10px 0}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
     .field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;background:#fff;padding:10px}
     textarea{min-height:90px;resize:vertical}
     .inline{display:flex;gap:8px}.inline>*{flex:1}
-    .calendar-head,.summary-head{display:flex;align-items:center;gap:8px}
+    .calendar-head,.summary-head{display:flex;align-items:center;gap:6px}
+    .calendar-head{margin-bottom:2px}
+    .calendar-head h2{font-size:18px;margin:0;text-align:left!important}
+    .calendar-head .small-button{padding:7px 9px;min-width:38px}
+    .calendar-today{min-width:52px!important;font-size:12px}
     .grow{flex:1}
-    .weekday,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-    .weekday div{text-align:center;font-size:12px;padding:6px}
-    .day{min-height:72px;border-top:1px solid #e7eef4;padding:5px;font-size:12px}
-    .day.other{opacity:.35}.day.today{background:#eef7ff;border-radius:9px}.day{cursor:pointer;border-radius:10px;transition:.15s}.day.selected{background:var(--accent);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent);font-weight:700}.day.selected .day-icons{filter:none}.day.has-record{cursor:pointer}
-    .day-icons{font-size:16px;line-height:1.05;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:4px}
+    .weekday,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+    .weekday div{text-align:center;font-size:11px;padding:4px 1px}
+    .calendar-grid{border-left:1px solid #e7eef4;border-top:1px solid #e7eef4}
+    .day{height:var(--calendar-cell-height,72px);border-right:1px solid #e7eef4;border-bottom:1px solid #e7eef4;padding:4px;min-width:0;font-size:11px;cursor:pointer;overflow:hidden;background:#fff}
+    .day.other{opacity:.35}.day.today{background:#eef7ff}.day.selected{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent);font-weight:700}.day.has-record{cursor:pointer}
+    .day-number{display:block;text-align:left;line-height:1;font-size:12px}
+    .day-icons{font-size:13px;line-height:1;display:grid;grid-template-columns:repeat(3,13px);grid-template-rows:repeat(2,15px);gap:1px 1px;margin-top:4px;justify-content:start;align-content:start;text-align:center}
+    .day-icons span{display:block;width:13px;height:15px;overflow:visible}
+    .calendar-card{padding:10px 10px 8px}
+    .calendar-list-card{padding:10px}
+    .calendar-list-card h3{font-size:14px;margin-bottom:7px}
+    .calendar-help{margin-top:7px;padding:7px 9px;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:11px}
+    .calendar-detail-card{display:none;padding:10px}
+    .calendar-detail-card.show{display:block}
+    .calendar-detail-date{font-weight:800;margin-bottom:7px}
+    .calendar-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .calendar-detail-item{border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px;min-height:62px}
+    .calendar-detail-memo{margin-top:7px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px}
     .summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     .stat{background:#fff;border-radius:14px;padding:10px;text-align:center;border:1px solid #e3ebf2}
     .stat b{display:block;font-size:18px;margin-top:4px}
@@ -140,9 +157,9 @@
     .toast.show{display:block}
     .history-item{border-top:1px solid var(--line);padding:10px 0}
     .detail-list{line-height:1.8}
-    .calendar-symptom-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    .calendar-symptom-item{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 6px;text-align:center;font-size:12px}
-    .calendar-symptom-item .emoji{font-size:23px}
+    .calendar-symptom-list{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+    .calendar-symptom-item{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 3px;text-align:center;font-size:10px;min-height:50px}
+    .calendar-symptom-item .emoji{font-size:18px}
     .move-buttons{display:none;gap:4px}.reordering .move-buttons{display:flex}.move-buttons button{padding:6px 9px}
     .settings-nav-button{display:flex;align-items:center;justify-content:space-between;width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 14px;font-weight:700}
     .compact-card{padding:13px 14px;margin-bottom:10px}
@@ -169,8 +186,10 @@
       .two-col{grid-template-columns:1fr 1fr}
       .symptom-grid{grid-template-columns:repeat(3,1fr);gap:8px}
       .choice{font-size:12px;padding:8px 2px}
-      .day{min-height:64px}
       .calendar-symptom-list{grid-template-columns:repeat(4,1fr)}
+      .calendar-detail-grid{grid-template-columns:repeat(3,1fr)}
+      .calendar-card{--calendar-cell-height:68px}
+      .calendar-card.rows-6{--calendar-cell-height:60px}
     }
   </style>
 </head>
@@ -211,20 +230,27 @@
   </section>
 
   <section class="page" id="page-calendar">
-    <div class="card">
+    <div class="card calendar-card" id="calendarCard">
       <div class="calendar-head">
-        <button class="small-button" id="calendarPrev">◀</button>
-        <h2 class="grow" style="text-align:center" id="calendarTitle"></h2>
-        <button class="small-button" id="calendarNext">▶</button>
+        <h2 class="grow" id="calendarTitle"></h2>
+        <button class="small-button" id="calendarPrev" aria-label="前月">‹</button>
+        <button class="small-button calendar-today" id="calendarToday">今月</button>
+        <button class="small-button" id="calendarNext" aria-label="翌月">›</button>
       </div>
       <div class="weekday">
         <div style="color:#d75b5b">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div style="color:#3978cc">土</div>
       </div>
       <div class="calendar-grid" id="calendarGrid"></div>
     </div>
-    <div class="card">
+    <div class="card calendar-list-card">
       <h3>症状一覧</h3>
       <div class="calendar-symptom-list" id="calendarSymptomList"></div>
+      <div class="calendar-help">ⓘ 日付をタップすると、その日の詳細を表示します</div>
+    </div>
+    <div class="card calendar-detail-card" id="calendarDetailCard">
+      <div class="calendar-detail-date" id="calendarDetailDate"></div>
+      <div class="calendar-detail-grid" id="calendarDetailGrid"></div>
+      <div class="calendar-detail-memo hidden" id="calendarDetailMemo"></div>
     </div>
   </section>
 
@@ -426,8 +452,8 @@ const defaultSymptoms = [
   {id:"dizzy",emoji:"😵‍💫",name:"めまい",extra:{type:"none",options:[]}},
   {id:"tinnitus",emoji:"👂",name:"耳鳴り",extra:{type:"side_pitch",options:[]}},
   {id:"foot",emoji:"🦶",name:"足痛",extra:{type:"none",options:[]}},
-  {id:"nausea",emoji:"🤢",name:"吐き気・不調",extra:{type:"none",options:[]}},
-  {id:"shoulder",emoji:"💪",name:"肩のムズムズ",extra:{type:"none",options:[]}}
+  {id:"nausea",emoji:"🤢",name:"吐き気",extra:{type:"none",options:[]}},
+  {id:"shoulder",emoji:"💪",name:"肩のムズムズ",extra:{type:"side",options:[]}}
 ];
 
 function migrateLegacy() {
@@ -437,7 +463,7 @@ function migrateLegacy() {
     try {
       const old = JSON.parse(raw);
       const migrated = {
-        version: 2.5,
+        version: 2.6,
         symptoms: Array.isArray(old.symptoms) ? old.symptoms : defaultSymptoms,
         records: old.records || {},
         settings: {accent:"#5ba7e5"},
@@ -455,7 +481,7 @@ let state = (() => {
     if (current) return current;
   } catch {}
   return migrateLegacy() || {
-    version:2.5,
+    version:2.6,
     symptoms:defaultSymptoms,
     records:{},
     settings:{accent:"#5ba7e5"},
@@ -477,6 +503,7 @@ let editMode = false;
 let reorderMode = false;
 let editingSymptomIndex = null;
 let detailDate = null;
+let calendarSelectedDate = null;
 
 const iso = d => {
   const x = new Date(d.getTime() - d.getTimezoneOffset()*60000);
@@ -487,7 +514,9 @@ const formatDate = d => `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,
 const typeName = t => ({none:"なし",scale10:"数値（1〜10）",side:"左右",pitch:"高低",side_pitch:"左右＋高低",single:"単一選択",multi:"複数選択"}[t] || t);
 
 function normalizeState(source){
-  const symptoms = Array.isArray(source?.symptoms) ? source.symptoms : defaultSymptoms;
+  const builtin = Object.fromEntries(defaultSymptoms.map(s=>[s.id,s]));
+  const rawSymptoms = Array.isArray(source?.symptoms) ? source.symptoms : defaultSymptoms;
+  const symptoms = rawSymptoms.map(s=>builtin[s.id] ? {...s,name:builtin[s.id].name,emoji:builtin[s.id].emoji,extra:{...builtin[s.id].extra}} : s);
   const records = {};
   Object.entries(source?.records || {}).forEach(([date,record])=>{
     const rawSymptoms = Array.isArray(record?.symptoms) ? record.symptoms : [];
@@ -504,7 +533,7 @@ function normalizeState(source){
     };
   });
   return {
-    version:2.5,
+    version:2.6,
     symptoms,
     records,
     settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || []},
@@ -528,7 +557,7 @@ function showPage(name){
   $$(".page").forEach(p=>p.classList.remove("active"));
   $("#page-"+name).classList.add("active");
   $$(".tab").forEach(t=>t.classList.toggle("active", t.dataset.page===name));
-  if(name==="calendar") renderCalendar();
+  if(name==="calendar") { calendarSelectedDate = null; renderCalendar(); }
   if(name==="summary") renderSummary();
   if(name==="settings") renderSettings();
   if(name==="other-settings") renderOtherSettings();
@@ -576,8 +605,9 @@ function renderExtraFields(){
   state.symptoms.filter(s=>selectedSymptoms.has(s.id) && s.extra.type!=="none").forEach(s=>{
     html += `<div class="extra-card"><h3>${s.emoji} ${s.name}の追加情報</h3>`;
     if(s.extra.type==="scale10") html += choiceGroup(s.id,"value","度合（1〜10）",[1,2,3,4,5,6,7,8,9,10].map(String));
-    if(["side","side_pitch"].includes(s.extra.type)) html += choiceGroup(s.id,"side","左右",["左","両方","右"]);
-    if(["pitch","side_pitch"].includes(s.extra.type)) html += choiceGroup(s.id,"pitch","音の高さ",["高音","低音"]);
+    if(s.extra.type==="side") html += choiceGroup(s.id,"side","左右",["左","両方","右"]);
+    if(s.extra.type==="pitch") html += choiceGroup(s.id,"pitch","高低",["高音","低音"]);
+    if(s.extra.type==="side_pitch") html += `<div class="field"><label>左右＋高低</label><div class="option-wrap">${["左","両方","右"].map(option=>`<button class="choice ${extraValues[s.id]?.side===option?"active":""}" data-extra-id="${s.id}" data-extra-key="side" data-extra-value="${option}" data-multi="false">${option}</button>`).join("")}${["高音","低音"].map(option=>`<button class="choice ${extraValues[s.id]?.pitch===option?"active":""}" data-extra-id="${s.id}" data-extra-key="pitch" data-extra-value="${option}" data-multi="false">${option}</button>`).join("")}</div></div>`;
     if(s.extra.type==="single") html += choiceGroup(s.id,"value","選択",s.extra.options || []);
     if(s.extra.type==="multi") html += choiceGroup(s.id,"value","選択",s.extra.options || [],true);
     html += `</div>`;
@@ -612,31 +642,60 @@ $("#saveRecord").onclick=()=>{
 };
 
 function renderCalendar(){
-  $("#calendarTitle").textContent = `${calendarMonth.getFullYear()}年 ${calendarMonth.getMonth()+1}月`;
   const y = calendarMonth.getFullYear(), m = calendarMonth.getMonth();
+  $("#calendarTitle").textContent = `${y}年 ${m+1}月`;
   const first = new Date(y,m,1);
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const weeks = Math.ceil((first.getDay()+daysInMonth)/7);
+  const cellCount = weeks*7;
   const start = new Date(y,m,1-first.getDay());
+  $("#calendarCard").classList.toggle("rows-6", weeks===6);
   let html = "";
-  for(let i=0;i<42;i++){
+  for(let i=0;i<cellCount;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const dateKey=iso(d);
     const record = state.records[dateKey];
-    const icons = (record?.symptoms || []).slice(0,6).map(r=>state.symptoms.find(s=>s.id===r.id)?.emoji || "");
-    html += `<div class="day ${d.getMonth()!==m?"other":""} ${dateKey===iso(new Date())?"today":""} ${dateKey===iso(selectedDate)?"selected":""} ${record?"has-record":""}" data-date="${dateKey}">
-      <b>${d.getDate()}</b><div class="day-icons">${icons.map(x=>`<span>${x}</span>`).join("")}</div>
+    const recordMap = new Map((record?.symptoms || []).map(item=>[item.id,item]));
+    const ordered = state.symptoms.filter(symptom=>recordMap.has(symptom.id));
+    const displayItems = ordered.length>6 ? [...ordered.slice(0,5).map(s=>s.emoji), "+"] : ordered.slice(0,6).map(s=>s.emoji);
+    const slots = Array.from({length:6},(_,idx)=>displayItems[idx] || "");
+    html += `<div class="day ${d.getMonth()!==m?"other":""} ${dateKey===iso(new Date())?"today":""} ${dateKey===calendarSelectedDate?"selected":""} ${record?"has-record":""}" data-date="${dateKey}">
+      <b class="day-number">${d.getDate()}</b><div class="day-icons">${slots.map(x=>`<span>${x}</span>`).join("")}</div>
     </div>`;
   }
   $("#calendarGrid").innerHTML = html;
-  $("#calendarSymptomList").innerHTML = state.symptoms.map(s=>`<div class="calendar-symptom-item"><div class="emoji">${s.emoji}</div><div>${s.name}</div></div>`).join("");
+  const monthPrefix = `${y}-${String(m+1).padStart(2,"0")}`;
+  $("#calendarSymptomList").innerHTML = state.symptoms.slice(0,8).map(s=>{
+    const count = Object.entries(state.records).filter(([date,record])=>date.startsWith(monthPrefix) && (record.symptoms||[]).some(item=>item.id===s.id)).length;
+    return `<div class="calendar-symptom-item"><div><span class="emoji">${s.emoji}</span> ${s.name}</div><b>${count}日</b></div>`;
+  }).join("");
   $$(".day").forEach(day=>day.onclick=()=>{
-    selectedDate=parseDate(day.dataset.date);
-    calendarMonth=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+    calendarSelectedDate = day.dataset.date;
     renderCalendar();
-    openDetail(day.dataset.date);
+    renderCalendarDetail(calendarSelectedDate);
   });
+  if(calendarSelectedDate) renderCalendarDetail(calendarSelectedDate);
+  else $("#calendarDetailCard").classList.remove("show");
 }
-$("#calendarPrev").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar();};
-$("#calendarNext").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar();};
+function renderCalendarDetail(date){
+  const record = state.records[date];
+  $("#calendarDetailDate").textContent = `📅 ${formatDate(parseDate(date))}`;
+  $("#calendarDetailGrid").innerHTML = (record?.symptoms || []).map(item=>{
+    const symptom = state.symptoms.find(s=>s.id===item.id);
+    const parts=[];
+    if(item.extra?.value) parts.push(`度合：${item.extra.value}/10`);
+    if(item.extra?.side) parts.push(`左右：${item.extra.side}`);
+    if(item.extra?.pitch) parts.push(`高低：${item.extra.pitch}`);
+    return `<div class="calendar-detail-item"><b>${symptom?.emoji||""} ${symptom?.name||item.id}</b>${parts.length?`<div style="margin-top:5px">${parts.join("<br>")}</div>`:""}</div>`;
+  }).join("") || `<div class="muted">記録はありません</div>`;
+  const memo = record?.memo || "";
+  $("#calendarDetailMemo").classList.toggle("hidden", !memo);
+  $("#calendarDetailMemo").innerHTML = memo ? `<b>📝 メモ</b><br>${memo.replaceAll("<","&lt;")}` : "";
+  $("#calendarDetailCard").classList.add("show");
+}
+$("#calendarPrev").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);calendarSelectedDate=null;renderCalendar();};
+$("#calendarNext").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);calendarSelectedDate=null;renderCalendar();};
+$("#calendarToday").onclick=()=>{const now=new Date();calendarMonth=new Date(now.getFullYear(),now.getMonth(),1);calendarSelectedDate=null;renderCalendar();};
 
 function openDetail(date){
   detailDate = date;
