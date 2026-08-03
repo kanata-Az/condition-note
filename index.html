@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.3.0.0</title>
+  <title>コンディションノート Ver.3.0.1</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -49,10 +49,10 @@
     .small-button{border:1px solid #c9d9e6;background:#fff;border-radius:11px;padding:9px 11px}
     .primary{border:0;background:var(--accent);color:#fff;border-radius:13px;padding:13px 16px;font-weight:700}
     .full{width:100%}
-    .symptom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .symptom-button{border:1px solid var(--line);background:#fff;border-radius:15px;padding:11px 5px;text-align:center;min-height:76px;touch-action:manipulation}
+    .symptom-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .symptom-button{border:1px solid var(--line);background:#fff;border-radius:13px;padding:9px 3px;text-align:center;min-height:70px;touch-action:manipulation;min-width:0}
     .symptom-button.selected{border:2px solid var(--accent);background:var(--accent-soft)}
-    .emoji{font-size:27px}.symptom-name{font-size:12px;margin-top:3px;line-height:1.25}
+    .emoji{font-size:24px}.symptom-name{font-size:11px;margin-top:3px;line-height:1.2;overflow-wrap:anywhere}
     .extra-card{margin-top:10px;padding:11px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,#fff)}
     .extra-card h3{font-size:14px;margin-bottom:8px}
     .extra-card .field{margin:5px 0}
@@ -121,10 +121,10 @@
     .summary-main-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .summary-panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px;min-height:194px}
     .summary-panel h3{font-size:13px;margin-bottom:5px}
-    .summary-donut-wrap{display:grid;grid-template-columns:108px 1fr;gap:7px;align-items:center}
+    .summary-donut-wrap{display:block}
     .summary-donut-wrap .donut{width:104px;height:104px;margin:3px auto}
     .summary-donut-wrap .donut::after{width:61px;height:61px}
-    .summary-legend{font-size:9px;line-height:1.55}
+    .summary-legend{font-size:10px;line-height:1.55;margin-top:7px;text-align:left}
     .summary-panel .bar-row{grid-template-columns:18px 1fr 25px;gap:4px;margin:6px 0;font-size:10px}
     .summary-symptom-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
     .summary-symptom-card{border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 2px;text-align:center;font-size:10px;min-height:52px}
@@ -192,7 +192,7 @@
       .summary-main-grid{grid-template-columns:1fr 1fr}
       .summary-symptom-cards{grid-template-columns:repeat(4,1fr)}
       .two-col{grid-template-columns:1fr 1fr}
-      .symptom-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+      .symptom-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
       .choice{font-size:12px;padding:8px 2px}
       .calendar-symptom-list{grid-template-columns:repeat(4,1fr)}
       .calendar-detail-grid{grid-template-columns:repeat(3,1fr)}
@@ -467,8 +467,8 @@
 
 <script>
 const STORAGE_KEY = "condition-note-v2";
-const APP_VERSION = "3.0.0";
-const DATA_VERSION = 3;
+const APP_VERSION = "3.0.1";
+const DATA_VERSION = 4;
 const LEGACY_KEYS = ["condition-note-v11","condition-note-v1","condition-note"];
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -481,6 +481,28 @@ const defaultSymptoms = [
   {id:"shoulder",emoji:"💪",name:"ムズムズ",extra:{type:"side",options:[]}}
 ];
 const symptomAliases = {ear:"tinnitus",other:"shoulder",foot:"foot",nausea:"nausea"};
+const BUNDLED_RECORDS_VERSION = 1;
+const BUNDLED_RECORDS = {"2026-07-25":{"memo":"","symptoms":[{"id":"headache","extra":{"value":"7"}}]},"2026-07-26":{"memo":"","symptoms":[{"id":"headache","extra":{"value":"3"}}]},"2026-07-27":{"memo":"頭痛4→6→8","symptoms":[{"id":"headache","extra":{"value":"8"}},{"id":"tinnitus","extra":{"side":"右","pitch":"高音"}},{"id":"shoulder","extra":{"side":"左"}}]},"2026-07-28":{"memo":"","symptoms":[{"id":"sleepiness","extra":{}},{"id":"headache","extra":{"value":"2"}}]},"2026-07-29":{"memo":"","symptoms":[{"id":"headache","extra":{"value":"3"}},{"id":"sleepiness","extra":{}},{"id":"tinnitus","extra":{"side":"右","pitch":"低音"}}]},"2026-08-02":{"memo":"","symptoms":[{"id":"headache","extra":{"value":"8"}}]},"2026-08-03":{"memo":"","symptoms":[{"id":"sleepiness","extra":{}},{"id":"headache","extra":{"value":"7"}}]}};
+
+function mergeBundledRecords(target){
+  target.settings ||= {};
+  if((target.settings.bundledRecordsVersion || 0) >= BUNDLED_RECORDS_VERSION) return target;
+  target.records ||= {};
+  Object.entries(BUNDLED_RECORDS).forEach(([date, bundled])=>{
+    if(!target.records[date]) {
+      target.records[date] = JSON.parse(JSON.stringify(bundled));
+      return;
+    }
+    const current = target.records[date];
+    const currentSymptoms = Array.isArray(current.symptoms) ? current.symptoms : [];
+    const existingIds = new Set(currentSymptoms.map(item=>item.id));
+    const additions = (bundled.symptoms || []).filter(item=>!existingIds.has(item.id));
+    current.symptoms = [...currentSymptoms, ...JSON.parse(JSON.stringify(additions))];
+    if(!current.memo && bundled.memo) current.memo = bundled.memo;
+  });
+  target.settings.bundledRecordsVersion = BUNDLED_RECORDS_VERSION;
+  return target;
+}
 
 function migrateLegacy() {
   for (const key of LEGACY_KEYS) {
@@ -568,7 +590,7 @@ function normalizeState(source){
   };
 }
 
-state = normalizeState(state);
+state = mergeBundledRecords(normalizeState(state));
 if(originalStoredState && (originalStoredState.dataVersion||0) < DATA_VERSION){
   state.migrationBackups = [...(state.migrationBackups||[]), {createdAt:new Date().toISOString(),fromVersion:originalStoredState.dataVersion||originalStoredState.version||"legacy",data:originalStoredState}].slice(-3);
 }

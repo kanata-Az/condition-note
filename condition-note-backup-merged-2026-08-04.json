@@ -1,0 +1,263 @@
+{
+  "appVersion": "3.0.1",
+  "dataVersion": 4,
+  "symptoms": [
+    {
+      "id": "headache",
+      "emoji": "🤕",
+      "name": "頭痛",
+      "extra": {
+        "type": "scale10",
+        "options": []
+      }
+    },
+    {
+      "id": "dizzy",
+      "emoji": "😵‍💫",
+      "name": "めまい",
+      "extra": {
+        "type": "none",
+        "options": []
+      }
+    },
+    {
+      "id": "tinnitus",
+      "emoji": "👂",
+      "name": "耳鳴り",
+      "extra": {
+        "type": "side_pitch",
+        "options": []
+      }
+    },
+    {
+      "id": "sleepiness",
+      "emoji": "😴",
+      "name": "眠気",
+      "extra": {
+        "type": "none",
+        "options": []
+      }
+    },
+    {
+      "id": "shoulder",
+      "emoji": "💪",
+      "name": "ムズムズ",
+      "extra": {
+        "type": "side",
+        "options": []
+      }
+    }
+  ],
+  "archivedSymptoms": [],
+  "records": {
+    "2026-07-25": {
+      "memo": "",
+      "symptoms": [
+        {
+          "id": "headache",
+          "extra": {
+            "value": "7"
+          }
+        }
+      ]
+    },
+    "2026-07-26": {
+      "memo": "",
+      "symptoms": [
+        {
+          "id": "headache",
+          "extra": {
+            "value": "3"
+          }
+        }
+      ]
+    },
+    "2026-07-27": {
+      "memo": "頭痛4→6→8",
+      "symptoms": [
+        {
+          "id": "headache",
+          "extra": {
+            "value": "8"
+          }
+        },
+        {
+          "id": "tinnitus",
+          "extra": {
+            "side": "右",
+            "pitch": "高音"
+          }
+        },
+        {
+          "id": "shoulder",
+          "extra": {
+            "side": "左"
+          }
+        }
+      ]
+    },
+    "2026-07-28": {
+      "memo": "",
+      "symptoms": [
+        {
+          "id": "sleepiness",
+          "extra": {}
+        },
+        {
+          "id": "headache",
+          "extra": {
+            "value": "2"
+          }
+        }
+      ]
+    },
+    "2026-07-29": {
+      "memo": "",
+      "symptoms": [
+        {
+          "id": "headache",
+          "extra": {
+            "value": "3"
+          }
+        },
+        {
+          "id": "sleepiness",
+          "extra": {}
+        },
+        {
+          "id": "tinnitus",
+          "extra": {
+            "side": "右",
+            "pitch": "低音"
+          }
+        }
+      ]
+    },
+    "2026-08-02": {
+      "memo": "",
+      "symptoms": [
+        {
+          "id": "headache",
+          "extra": {
+            "value": "8"
+          }
+        }
+      ]
+    },
+    "2026-08-03": {
+      "memo": "",
+      "symptoms": [
+        {
+          "id": "sleepiness",
+          "extra": {}
+        },
+        {
+          "id": "headache",
+          "extra": {
+            "value": "7"
+          }
+        }
+      ]
+    }
+  },
+  "settings": {
+    "accent": "#5ba7e5",
+    "recentEmojis": [
+      "😴"
+    ],
+    "customPeriods": []
+  },
+  "exportHistory": [],
+  "migrationBackups": [
+    {
+      "createdAt": "2026-08-03T15:32:58.177Z",
+      "fromVersion": 2.6,
+      "data": {
+        "version": 2.6,
+        "symptoms": [
+          {
+            "id": "headache",
+            "emoji": "🤕",
+            "name": "頭痛",
+            "extra": {
+              "type": "scale10",
+              "options": []
+            }
+          },
+          {
+            "id": "dizzy",
+            "emoji": "😵‍💫",
+            "name": "めまい",
+            "extra": {
+              "type": "none",
+              "options": []
+            }
+          },
+          {
+            "id": "tinnitus",
+            "emoji": "👂",
+            "name": "耳鳴り",
+            "extra": {
+              "type": "side_pitch",
+              "options": []
+            }
+          },
+          {
+            "id": "s1785717224966",
+            "emoji": "😴",
+            "name": "眠気",
+            "extra": {
+              "type": "none",
+              "options": []
+            }
+          },
+          {
+            "id": "shoulder",
+            "emoji": "💪",
+            "name": "ムズムズ",
+            "extra": {
+              "type": "side",
+              "options": []
+            }
+          }
+        ],
+        "records": {
+          "2026-08-02": {
+            "memo": "",
+            "symptoms": [
+              {
+                "id": "headache",
+                "extra": {
+                  "value": "8"
+                }
+              }
+            ]
+          },
+          "2026-08-03": {
+            "memo": "",
+            "symptoms": [
+              {
+                "id": "s1785717224966",
+                "extra": {}
+              },
+              {
+                "id": "headache",
+                "extra": {
+                  "value": "7"
+                }
+              }
+            ]
+          }
+        },
+        "settings": {
+          "accent": "#5ba7e5",
+          "recentEmojis": [
+            "😴"
+          ]
+        },
+        "exportHistory": []
+      }
+    }
+  ],
+  "exportedAt": "2026-08-04T00:00:00.000Z"
+}
