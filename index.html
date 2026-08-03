@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.2.6.0</title>
+  <title>コンディションノート Ver.3.0.0</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -107,6 +107,14 @@
     .summary-range-buttons button{padding:7px 2px;font-size:11px;border:1px solid var(--line);background:#fff;border-radius:9px}
     .summary-range-buttons button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
     .summary-note{text-align:center;font-size:10px;color:var(--muted);margin-top:5px}
+    .summary-period-title{border:0;background:transparent;padding:5px;border-radius:9px;width:100%}
+    .month-picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    .month-picker-grid button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 4px}
+    .month-picker-grid button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .custom-template-list{display:grid;gap:7px;margin-top:9px}
+    .custom-template-row{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}
+    .custom-template-row button:first-child{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;text-align:left}
+    .memo-list-button{width:100%;margin-top:7px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px;font-weight:700}
     .summary-stats.compact{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
     .summary-stats.compact .stat{padding:7px 3px;font-size:10px;min-height:62px}
     .summary-stats.compact .stat b{font-size:14px;line-height:1.15}
@@ -263,7 +271,7 @@
     <div class="card summary-range-card">
       <div class="summary-period-line">
         <button class="small-button" id="summaryPrev">‹</button>
-        <div class="summary-period-title" id="summaryPeriodTitle"></div>
+        <button class="summary-period-title" id="summaryPeriodTitle" type="button" aria-label="表示開始月を選択"></button>
         <button class="small-button" id="summaryNext">›</button>
       </div>
       <div class="summary-range-buttons" id="summaryRangeButtons">
@@ -273,11 +281,6 @@
         <button data-months="12">1年</button>
         <button data-months="custom">カスタム</button>
       </div>
-      <div class="inline hidden" id="customRange" style="margin-top:7px">
-        <input class="field-control" type="date" id="rangeStart">
-        <input class="field-control" type="date" id="rangeEnd">
-      </div>
-      <div class="summary-note">← → で、選択中の期間を前後に移動します</div>
     </div>
 
     <div id="summaryOverallView">
@@ -418,6 +421,27 @@
   </section>
 </div>
 
+
+<div class="modal" id="summaryMonthModal">
+  <div class="sheet">
+    <div class="history-head"><h3>表示開始月を選択</h3><button class="small-button" id="closeSummaryMonth">閉じる</button></div>
+    <div class="inline" style="margin-top:8px"><button class="small-button" id="monthYearPrev">‹ 前年</button><div class="date-display" id="monthYearLabel"></div><button class="small-button" id="monthYearNext">翌年 ›</button></div>
+    <div class="month-picker-grid" id="monthPickerGrid"></div>
+  </div>
+</div>
+
+<div class="modal" id="customTemplateModal">
+  <div class="sheet">
+    <div class="history-head"><h3>カスタム期間</h3><button class="small-button" id="closeCustomTemplate">閉じる</button></div>
+    <div class="custom-template-list" id="customTemplateList"></div>
+    <div class="add-box show">
+      <h3>期間テンプレートを追加</h3>
+      <div class="inline"><div class="field"><label>名称</label><input id="customTemplateName" placeholder="例：9か月"></div><div class="field"><label>月数</label><input id="customTemplateMonths" type="number" min="1" max="120" value="9"></div></div>
+      <button class="primary full" id="addCustomTemplate">追加する</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="emojiModal">
   <div class="sheet">
     <h3>アイコンを選択</h3>
@@ -443,6 +467,8 @@
 
 <script>
 const STORAGE_KEY = "condition-note-v2";
+const APP_VERSION = "3.0.0";
+const DATA_VERSION = 3;
 const LEGACY_KEYS = ["condition-note-v11","condition-note-v1","condition-note"];
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -451,10 +477,10 @@ const defaultSymptoms = [
   {id:"headache",emoji:"🤕",name:"頭痛",extra:{type:"scale10",options:[]}},
   {id:"dizzy",emoji:"😵‍💫",name:"めまい",extra:{type:"none",options:[]}},
   {id:"tinnitus",emoji:"👂",name:"耳鳴り",extra:{type:"side_pitch",options:[]}},
-  {id:"foot",emoji:"🦶",name:"足痛",extra:{type:"none",options:[]}},
-  {id:"nausea",emoji:"🤢",name:"吐き気",extra:{type:"none",options:[]}},
-  {id:"shoulder",emoji:"💪",name:"肩のムズムズ",extra:{type:"side",options:[]}}
+  {id:"sleepiness",emoji:"😴",name:"眠気",extra:{type:"none",options:[]}},
+  {id:"shoulder",emoji:"💪",name:"ムズムズ",extra:{type:"side",options:[]}}
 ];
+const symptomAliases = {ear:"tinnitus",other:"shoulder",foot:"foot",nausea:"nausea"};
 
 function migrateLegacy() {
   for (const key of LEGACY_KEYS) {
@@ -463,11 +489,9 @@ function migrateLegacy() {
     try {
       const old = JSON.parse(raw);
       const migrated = {
-        version: 2.6,
+        appVersion: APP_VERSION, dataVersion: DATA_VERSION,
         symptoms: Array.isArray(old.symptoms) ? old.symptoms : defaultSymptoms,
-        records: old.records || {},
-        settings: {accent:"#5ba7e5"},
-        exportHistory: []
+        records: old.records || {}, settings: {accent:"#5ba7e5",customPeriods:[]}, exportHistory: []
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
       return migrated;
@@ -475,25 +499,20 @@ function migrateLegacy() {
   }
   return null;
 }
+let originalStoredState = null;
 let state = (() => {
   try {
     const current = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (current) return current;
+    if (current) { originalStoredState = current; return current; }
   } catch {}
-  return migrateLegacy() || {
-    version:2.6,
-    symptoms:defaultSymptoms,
-    records:{},
-    settings:{accent:"#5ba7e5"},
-    exportHistory:[]
-  };
+  return migrateLegacy() || {appVersion:APP_VERSION,dataVersion:DATA_VERSION,symptoms:defaultSymptoms,records:{},settings:{accent:"#5ba7e5",customPeriods:[]},exportHistory:[]};
 })();
-state = normalizeState(state);
-
 let selectedDate = new Date();
 let calendarMonth = new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
 let summaryMonth = new Date(calendarMonth);
 let summaryRangeMonths = 3;
+let summaryAnchorMonth = new Date(summaryMonth.getFullYear(), summaryMonth.getMonth()-2, 1);
+let monthPickerYear = summaryAnchorMonth.getFullYear();
 let summaryView = "overall";
 let selectedSummarySymptomId = null;
 let selectedSymptoms = new Set();
@@ -514,31 +533,44 @@ const formatDate = d => `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,
 const typeName = t => ({none:"なし",scale10:"数値（1〜10）",side:"左右",pitch:"高低",side_pitch:"左右＋高低",single:"単一選択",multi:"複数選択"}[t] || t);
 
 function normalizeState(source){
-  const builtin = Object.fromEntries(defaultSymptoms.map(s=>[s.id,s]));
-  const rawSymptoms = Array.isArray(source?.symptoms) ? source.symptoms : defaultSymptoms;
-  const symptoms = rawSymptoms.map(s=>builtin[s.id] ? {...s,name:builtin[s.id].name,emoji:builtin[s.id].emoji,extra:{...builtin[s.id].extra}} : s);
+  const existing = Array.isArray(source?.symptoms) ? source.symptoms : [];
+  const byId = Object.fromEntries(existing.map(x=>[x.id,x]));
+  const byName = Object.fromEntries(existing.map(x=>[x.name,x]));
+  const dynamicSleep = existing.find(x=>x.name==="眠気");
+  const resolveId = id => {
+    if(id===dynamicSleep?.id) return "sleepiness";
+    return symptomAliases[id] || id;
+  };
+  const symptoms = defaultSymptoms.map(def=>{
+    const previous = byId[def.id] || (def.id==="tinnitus"?byId.ear:null) || (def.id==="shoulder"?byId.other:null) || (def.id==="sleepiness"?dynamicSleep:null) || byName[def.name];
+    return {...def, ...(previous||{}), id:def.id, name:def.name, emoji:def.emoji, extra:{...def.extra,...(previous?.extra||{})}};
+  });
+  const activeIds = new Set(symptoms.map(x=>x.id));
+  const archivedSymptoms = [...(source?.archivedSymptoms||[])];
+  existing.forEach(x=>{const id=resolveId(x.id); if(!activeIds.has(id) && !archivedSymptoms.some(a=>a.id===id)) archivedSymptoms.push({...x,id});});
   const records = {};
   Object.entries(source?.records || {}).forEach(([date,record])=>{
-    const rawSymptoms = Array.isArray(record?.symptoms) ? record.symptoms : [];
-    const extras = record?.extras || {};
-    const levels = record?.levels || {};
-    records[date] = {
-      memo: record?.memo || record?.note || "",
-      symptoms: rawSymptoms.map(item=>{
-        const id = typeof item === "string" ? item : item.id;
-        let extra = typeof item === "string" ? (extras[id] || {}) : (item.extra || {});
-        if((extra.value===undefined || extra.value==="") && levels[id]!==undefined) extra={...extra,value:String(levels[id])};
-        return {id,extra};
-      }).filter(x=>x.id)
-    };
+    const raw = Array.isArray(record?.symptoms) ? record.symptoms : [];
+    const extras = record?.extras || {}; const levels = record?.levels || {};
+    records[date] = {memo: record?.memo || record?.note || "", symptoms: raw.map(item=>{
+      const oldId = typeof item === "string" ? item : item.id;
+      const id = resolveId(oldId);
+      let extra = typeof item === "string" ? (extras[oldId] || extras[id] || {}) : (item.extra || {});
+      if((extra.value===undefined || extra.value==="") && (levels[oldId]!==undefined || levels[id]!==undefined)) extra={...extra,value:String(levels[oldId]??levels[id])};
+      return {id,extra};
+    }).filter(x=>x.id)};
   });
   return {
-    version:2.6,
-    symptoms,
-    records,
-    settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || []},
-    exportHistory:source?.exportHistory || source?.exports || []
+    appVersion:APP_VERSION,dataVersion:DATA_VERSION, symptoms, archivedSymptoms, records,
+    settings:{accent:source?.settings?.accent || source?.theme || "#5ba7e5",recentEmojis:source?.settings?.recentEmojis || source?.recentEmojis || [],customPeriods:source?.settings?.customPeriods || []},
+    exportHistory:source?.exportHistory || source?.exports || [],
+    migrationBackups:source?.migrationBackups || []
   };
+}
+
+state = normalizeState(state);
+if(originalStoredState && (originalStoredState.dataVersion||0) < DATA_VERSION){
+  state.migrationBackups = [...(state.migrationBackups||[]), {createdAt:new Date().toISOString(),fromVersion:originalStoredState.dataVersion||originalStoredState.version||"legacy",data:originalStoredState}].slice(-3);
 }
 
 function persist(){
@@ -721,14 +753,9 @@ $("#editFromDetail").onclick=()=>{
 };
 
 function summaryDateBounds(){
-  if(summaryRangeMonths === "custom"){
-    const start = $("#rangeStart").value;
-    const end = $("#rangeEnd").value;
-    return start && end ? {start,end} : null;
-  }
   const months = Number(summaryRangeMonths);
-  const endDate = new Date(summaryMonth.getFullYear(), summaryMonth.getMonth()+1, 0);
-  const startDate = new Date(summaryMonth.getFullYear(), summaryMonth.getMonth()-months+1, 1);
+  const startDate = new Date(summaryAnchorMonth.getFullYear(), summaryAnchorMonth.getMonth(), 1);
+  const endDate = new Date(summaryAnchorMonth.getFullYear(), summaryAnchorMonth.getMonth()+months, 0);
   return {start:iso(startDate),end:iso(endDate)};
 }
 function selectedSummaryEntries(){
@@ -775,7 +802,7 @@ function renderOverallSummary(data){
   $$("#overallSymptomCards [data-summary-id]").forEach(b=>b.onclick=()=>{selectedSummarySymptomId=b.dataset.summaryId;summaryView="symptom";renderSummary();});
 }
 function renderSymptomSummary(data){
-  if(!selectedSummarySymptomId || !state.symptoms.some(s=>s.id===selectedSummarySymptomId)) selectedSummarySymptomId=state.symptoms[0]?.id;
+  if(!selectedSummarySymptomId || !state.symptoms.some(s=>s.id===selectedSummarySymptomId)){ const ranked=Object.entries(data.uniqueDaysBySymptom).sort((a,b)=>b[1]-a[1] || state.symptoms.findIndex(x=>x.id===a[0])-state.symptoms.findIndex(x=>x.id===b[0])); selectedSummarySymptomId=(ranked[0]?.[1]>0?ranked[0][0]:state.symptoms[0]?.id); }
   const symptom=state.symptoms.find(s=>s.id===selectedSummarySymptomId);
   $("#detailSymptomCards").innerHTML=state.symptoms.slice(0,8).map(s=>`<button class="summary-symptom-card ${s.id===selectedSummarySymptomId?"active":""}" data-detail-id="${s.id}">${s.emoji} ${s.name}<b>${data.uniqueDaysBySymptom[s.id]||0}日</b></button>`).join("");
   $$("#detailSymptomCards [data-detail-id]").forEach(b=>b.onclick=()=>{selectedSummarySymptomId=b.dataset.detailId;renderSymptomSummary(data);});
@@ -803,14 +830,14 @@ function renderSymptomSummary(data){
       <div class="detail-panel"><h4>曜日別の発生日数</h4>${symptomWeek.map((n,i)=>`<div class="bar-row"><span>${"日月火水木金土"[i]}</span><div class="bar"><span style="width:${n/weekMax*100}%"></span></div><b>${n}</b></div>`).join("")}</div>
     </div>
     <div class="detail-panel" style="margin-top:7px;min-height:82px"><h4>月別の推移（発生日数）</h4><div class="mini-month-bars">${months.length?months.map(([m,n])=>`<div class="mini-month-col"><b>${n}日</b><div class="mini-month-bar" style="height:${Math.max(4,n/monthMax*43)}px"></div>${m}</div>`).join(""):'<span class="muted">記録はありません</span>'}</div></div>
-    ${recentMemos.length?`<div class="summary-memo"><b>📝 メモ（${symptom?.name||"症状"}）</b><br>${recentMemos.map(([d,r])=>`${d}：${String(r.memo).replaceAll("<","&lt;")}`).join("<br>")}</div>`:""}`;
+    ${recentMemos.length?`<button class="memo-list-button" id="openSymptomMemos">📝 ${symptom?.name||"症状"}のメモ一覧を見る</button>`:""}`;
+  const memoButton=$("#openSymptomMemos"); if(memoButton) memoButton.onclick=()=>{ $("#detailTitle").textContent=`${symptom?.emoji||""} ${symptom?.name||"症状"}のメモ`; $("#detailBody").innerHTML=data.entries.filter(([d,r])=>(r.symptoms||[]).some(x=>x.id===selectedSummarySymptomId)&&r.memo).slice().reverse().map(([d,r])=>`<div class="history-item"><b>${formatDate(parseDate(d))}</b><div>${String(r.memo).replaceAll("<","&lt;")}</div></div>`).join("")||`<div class="muted">メモはありません</div>`; $("#editFromDetail").classList.add("hidden"); $("#detailModal").classList.add("show"); };
 }
 function renderSummary(){
   $("#summaryOverallTab").classList.toggle("active",summaryView==="overall");
   $("#summarySymptomTab").classList.toggle("active",summaryView==="symptom");
   $("#summaryOverallView").classList.toggle("hidden",summaryView!=="overall");
   $("#summarySymptomView").classList.toggle("hidden",summaryView!=="symptom");
-  $("#customRange").classList.toggle("hidden",summaryRangeMonths!=="custom");
   $$("#summaryRangeButtons button").forEach(b=>b.classList.toggle("active",String(summaryRangeMonths)===b.dataset.months));
   $("#summaryPeriodTitle").textContent=summaryPeriodLabel();
   const data=getSummaryData();
@@ -818,11 +845,29 @@ function renderSummary(){
 }
 $("#summaryOverallTab").onclick=()=>{summaryView="overall";renderSummary();};
 $("#summarySymptomTab").onclick=()=>{summaryView="symptom";renderSummary();};
-$$("#summaryRangeButtons button").forEach(b=>b.onclick=()=>{summaryRangeMonths=b.dataset.months==="custom"?"custom":Number(b.dataset.months);renderSummary();});
-$("#summaryPrev").onclick=()=>{if(summaryRangeMonths!=="custom")summaryMonth.setMonth(summaryMonth.getMonth()-Number(summaryRangeMonths));renderSummary();};
-$("#summaryNext").onclick=()=>{if(summaryRangeMonths!=="custom")summaryMonth.setMonth(summaryMonth.getMonth()+Number(summaryRangeMonths));renderSummary();};
-$("#rangeStart").onchange=renderSummary;
-$("#rangeEnd").onchange=renderSummary;
+$$("#summaryRangeButtons button").forEach(b=>b.onclick=()=>{
+  if(b.dataset.months==="custom"){ renderCustomTemplateModal(); $("#customTemplateModal").classList.add("show"); return; }
+  summaryRangeMonths=Number(b.dataset.months); renderSummary();
+});
+$("#summaryPrev").onclick=()=>{summaryAnchorMonth.setMonth(summaryAnchorMonth.getMonth()-Number(summaryRangeMonths));renderSummary();};
+$("#summaryNext").onclick=()=>{summaryAnchorMonth.setMonth(summaryAnchorMonth.getMonth()+Number(summaryRangeMonths));renderSummary();};
+$("#summaryPeriodTitle").onclick=()=>{monthPickerYear=summaryAnchorMonth.getFullYear();renderMonthPicker();$("#summaryMonthModal").classList.add("show");};
+$("#closeSummaryMonth").onclick=()=>$("#summaryMonthModal").classList.remove("show");
+$("#closeCustomTemplate").onclick=()=>$("#customTemplateModal").classList.remove("show");
+$("#monthYearPrev").onclick=()=>{monthPickerYear--;renderMonthPicker();};
+$("#monthYearNext").onclick=()=>{monthPickerYear++;renderMonthPicker();};
+function renderMonthPicker(){
+  $("#monthYearLabel").textContent=`${monthPickerYear}年`;
+  $("#monthPickerGrid").innerHTML=Array.from({length:12},(_,i)=>`<button data-month="${i}" class="${monthPickerYear===summaryAnchorMonth.getFullYear()&&i===summaryAnchorMonth.getMonth()?"active":""}">${i+1}月</button>`).join("");
+  $$("#monthPickerGrid button").forEach(b=>b.onclick=()=>{summaryAnchorMonth=new Date(monthPickerYear,Number(b.dataset.month),1);$("#summaryMonthModal").classList.remove("show");renderSummary();});
+}
+function renderCustomTemplateModal(){
+  const list=state.settings.customPeriods||[];
+  $("#customTemplateList").innerHTML=list.length?list.map((x,i)=>`<div class="custom-template-row"><button data-use="${i}">${x.name}（${x.months}か月）</button><button class="danger-button" data-delete="${i}">削除</button></div>`).join(""):'<div class="muted">登録されていません</div>';
+  $$("#customTemplateList [data-use]").forEach(b=>b.onclick=()=>{const x=list[Number(b.dataset.use)];summaryRangeMonths=Number(x.months);$("#customTemplateModal").classList.remove("show");renderSummary();});
+  $$("#customTemplateList [data-delete]").forEach(b=>b.onclick=()=>{list.splice(Number(b.dataset.delete),1);persist();renderCustomTemplateModal();});
+}
+$("#addCustomTemplate").onclick=()=>{const name=$("#customTemplateName").value.trim();const months=Number($("#customTemplateMonths").value);if(!name||months<1)return alert("名称と月数を入力してください");state.settings.customPeriods||=[];state.settings.customPeriods.push({name,months});persist();$("#customTemplateName").value="";renderCustomTemplateModal();};
 
 function moveSymptom(index,direction){
   const target=index+direction;
@@ -1039,6 +1084,7 @@ function renderAllExportHistory(){
 
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+persist();
 applyTheme();
 renderInput();
 </script>
