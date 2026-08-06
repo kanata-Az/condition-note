@@ -1,4 +1,4 @@
-コンディションノート Ver.3.1.0
+コンディションノート Ver.3.1.1
 
 GitHub / Cloudflare Pagesへそのままアップロードできる完全実装版です。
 
@@ -16,7 +16,7 @@ GitHub / Cloudflare Pagesへそのままアップロードできる完全実装�
 - バックアップ作成・復元の確認をポップアップ表示
 - バックアップの初期ファイル名を CN_YYYYMMDD.json に短縮
 - 復元完了後、画面更新の案内を表示して再読み込み
-- appVersion 3.1.0 / dataVersion 4
+- appVersion 3.1.1 / dataVersion 4
 - 保存キー condition-note-v2 を維持
 
 同梱ファイル：
