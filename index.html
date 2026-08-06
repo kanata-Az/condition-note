@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.3.0.1</title>
+  <title>コンディションノート Ver.3.1.0</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -143,24 +143,35 @@
     .mini-month-col{flex:1;text-align:center;font-size:8px}
     .mini-month-bar{width:70%;max-width:28px;margin:0 auto 3px;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
     .summary-memo{margin-top:7px;padding:7px 9px;border-radius:9px;background:#fff4f4;font-size:9px;line-height:1.45}
-    .section-tools{display:flex;justify-content:flex-end;gap:8px;margin:8px 0}
-    .symptom-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:11px 0;border-bottom:1px solid #edf1f5}
+    .settings-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .settings-title-row h2{margin:0}
+    .other-settings-button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+    .section-tools{display:flex;justify-content:flex-end;gap:6px;margin:6px 0}
+    .section-tools .small-button{padding:6px 8px;font-size:11px;border-radius:9px}
+    .symptom-list-scroll{max-height:47vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .symptom-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #edf1f5}
     .symptom-id{display:flex;align-items:center;gap:10px}.symptom-id .emoji{font-size:25px}
     .row-actions{display:flex;align-items:center;gap:7px}
     .trash,.drag-handle,.edit-single{display:none}
     .editing .trash,.editing .edit-single{display:inline-block}
     .reordering .drag-handle{display:inline-block}
     .trash{border:0;background:#fff0f0;color:var(--danger);border-radius:8px;padding:7px}
-    .drag-handle{cursor:grab}
+    .drag-handle{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;padding:8px 6px;margin:-8px 0 -8px -6px;font-size:18px}
+    .symptom-row.dragging{opacity:.68;background:var(--accent-soft);border-radius:10px;box-shadow:var(--shadow)}
     .add-box{display:none;margin-top:12px;padding:12px;border:1px dashed #a9cbe8;border-radius:14px;background:#f8fcff}
     .add-box.show{display:block}
     .hidden{display:none!important}
     .date-picker-proxy{position:fixed;left:-100px;top:-100px;width:1px;height:1px;opacity:.01;border:0;padding:0}
-    .modal{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:flex-end;justify-content:center}
+    .modal{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:flex-end;justify-content:center;padding-top:env(safe-area-inset-top)}
     .modal.show{display:flex}
-    .sheet{background:#fff;width:min(720px,100%);border-radius:22px 22px 0 0;padding:17px;max-height:82vh;overflow:auto}
-    .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
-    .emoji-grid button{font-size:25px;border:0;background:#f3f7fa;border-radius:9px;padding:8px}
+    .sheet{background:#fff;width:min(720px,100%);border-radius:22px 22px 0 0;padding:17px 17px calc(17px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+    .dialog-sheet{width:min(390px,calc(100% - 28px));border-radius:18px;margin:auto;padding:20px;max-height:none;text-align:center}
+    .dialog-sheet h3{margin:0 0 18px;font-size:17px;line-height:1.5}
+    .dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .dialog-actions.single{grid-template-columns:1fr}
+    .dialog-file-name{font-weight:800;overflow-wrap:anywhere;margin-bottom:4px}
+    .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+    .emoji-grid button{font-size:23px;border:0;background:#f3f7fa;border-radius:9px;padding:7px 2px;min-height:39px}
     .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#17324d;color:#fff;padding:11px 16px;border-radius:12px;display:none;z-index:100}
     .toast.show{display:block}
     .history-item{border-top:1px solid var(--line);padding:10px 0}
@@ -309,15 +320,18 @@
 
   <section class="page" id="page-settings">
     <div class="card">
-      <h2>設定</h2>
+      <div class="settings-title-row">
+        <h2>設定</h2>
+        <button class="other-settings-button" id="openOtherSettings">⚙️ その他設定</button>
+      </div>
       <h3>症状の管理</h3>
       <div class="muted">アイコン、名称、追加情報の編集・並び替え</div>
       <div class="section-tools">
         <button class="small-button" id="editModeButton">✏️ 編集</button>
         <button class="small-button" id="reorderModeButton">☰ 並び替え</button>
       </div>
-      <div id="symptomList"></div>
-      <button class="small-button full" style="margin-top:12px" id="addSymptomButton">＋ 症状を追加</button>
+      <div class="symptom-list-scroll" id="symptomList"></div>
+      <button class="small-button full" style="margin-top:10px" id="addSymptomButton">＋ 症状を追加</button>
 
       <div class="add-box" id="symptomEditor">
         <div class="inline">
@@ -353,11 +367,6 @@
       </div>
     </div>
 
-    <div class="card compact-card">
-      <button class="settings-nav-button" id="openOtherSettings">
-        <span>⚙️ その他設定</span><span>›</span>
-      </button>
-    </div>
   </section>
   <section class="page" id="page-other-settings">
     <div class="back-title">
@@ -378,8 +387,8 @@
     <div class="card compact-card">
       <h3>💾 バックアップ・復元</h3>
       <div class="action-grid">
-        <button class="small-button" id="backupButton">バックアップ作成</button>
-        <label class="small-button" style="text-align:center">バックアップから復元<input type="file" id="restoreFile" accept=".json" hidden></label>
+        <button class="small-button" id="backupButton">バックアップを作成</button>
+        <button class="small-button" id="restoreButton">バックアップの復元</button><input type="file" id="restoreFile" accept=".json,application/json" hidden>
       </div>
     </div>
 
@@ -445,9 +454,6 @@
 <div class="modal" id="emojiModal">
   <div class="sheet">
     <h3>アイコンを選択</h3>
-    <div class="muted" style="margin-bottom:8px">最近使ったもの</div>
-    <div class="emoji-grid" id="recentEmojiGrid"></div>
-    <div class="muted" style="margin:14px 0 8px">顔・体・その他</div>
     <div class="emoji-grid" id="emojiGrid"></div>
     <button class="small-button full" style="margin-top:12px" id="keyboardEmoji">キーボードから入力</button>
     <button class="small-button full" style="margin-top:8px" id="closeEmoji">閉じる</button>
@@ -463,11 +469,55 @@
   </div>
 </div>
 
+<div class="modal" id="backupConfirmModal">
+  <div class="sheet dialog-sheet">
+    <h3>バックアップを作成しますか？</h3>
+    <div class="dialog-actions">
+      <button class="small-button" id="cancelBackup">キャンセル</button>
+      <button class="primary" id="chooseBackupDestination">保存先を選択</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="backupCompleteModal">
+  <div class="sheet dialog-sheet">
+    <h3>バックアップを作成しました。</h3>
+    <div class="dialog-actions single"><button class="primary" id="closeBackupComplete">OK</button></div>
+  </div>
+</div>
+
+<div class="modal" id="restoreSelectModal">
+  <div class="sheet dialog-sheet">
+    <h3>バックアップの復元をしますか？</h3>
+    <div class="dialog-actions single">
+      <button class="primary" id="chooseRestoreFile">ファイルを選択</button>
+      <button class="small-button" id="cancelRestoreSelect">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="restoreConfirmModal">
+  <div class="sheet dialog-sheet">
+    <h3><span class="dialog-file-name" id="restoreFileName"></span>を復元しますか？</h3>
+    <div class="dialog-actions">
+      <button class="small-button" id="cancelRestoreConfirm">キャンセル</button>
+      <button class="primary" id="confirmRestore">復元する</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="restoreCompleteModal">
+  <div class="sheet dialog-sheet">
+    <h3>復元が完了しました。<br><br>最新の内容を反映するため、<br>画面を更新します。</h3>
+    <div class="dialog-actions single"><button class="primary" id="reloadAfterRestore">OK</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const STORAGE_KEY = "condition-note-v2";
-const APP_VERSION = "3.0.1";
+const APP_VERSION = "3.1.0";
 const DATA_VERSION = 4;
 const LEGACY_KEYS = ["condition-note-v11","condition-note-v1","condition-note"];
 const $ = s => document.querySelector(s);
@@ -591,6 +641,8 @@ function normalizeState(source){
 }
 
 state = mergeBundledRecords(normalizeState(state));
+state.appVersion = APP_VERSION;
+state.dataVersion = DATA_VERSION;
 if(originalStoredState && (originalStoredState.dataVersion||0) < DATA_VERSION){
   state.migrationBackups = [...(state.migrationBackups||[]), {createdAt:new Date().toISOString(),fromVersion:originalStoredState.dataVersion||originalStoredState.version||"legacy",data:originalStoredState}].slice(-3);
 }
@@ -891,55 +943,109 @@ function renderCustomTemplateModal(){
 }
 $("#addCustomTemplate").onclick=()=>{const name=$("#customTemplateName").value.trim();const months=Number($("#customTemplateMonths").value);if(!name||months<1)return alert("名称と月数を入力してください");state.settings.customPeriods||=[];state.settings.customPeriods.push({name,months});persist();$("#customTemplateName").value="";renderCustomTemplateModal();};
 
+let reorderDraft = null;
+function reorderItems(){ return reorderMode && reorderDraft ? reorderDraft : state.symptoms; }
 function moveSymptom(index,direction){
+  const items=reorderItems();
   const target=index+direction;
-  if(target<0 || target>=state.symptoms.length) return;
-  [state.symptoms[index],state.symptoms[target]]=[state.symptoms[target],state.symptoms[index]];
-  persist();renderSettings();renderInput();
+  if(target<0 || target>=items.length) return;
+  [items[index],items[target]]=[items[target],items[index]];
+  renderSettings();
 }
 
 function renderSettings(){
   const list=$("#symptomList");
-  list.className = `${editMode?"editing ":""}${reorderMode?"reordering":""}`;
-  list.innerHTML = state.symptoms.map((s,i)=>`
-    <div class="symptom-row" draggable="${reorderMode}" data-index="${i}">
+  const items=reorderItems();
+  list.className = `symptom-list-scroll ${editMode?"editing ":""}${reorderMode?"reordering":""}`;
+  list.innerHTML = items.map((s,i)=>`
+    <div class="symptom-row" data-index="${i}">
       <div class="symptom-id">
-        <span class="drag-handle">☰</span>
+        <span class="drag-handle" aria-label="${s.name}を並び替え">☰</span>
         <span class="emoji">${s.emoji}</span>
         <span>${s.name}<div class="muted">追加情報：${typeName(s.extra.type)}</div></span>
       </div>
       <div class="row-actions">
-        <span class="move-buttons"><button class="small-button move-up" data-index="${i}" aria-label="上へ">↑</button><button class="small-button move-down" data-index="${i}" aria-label="下へ">↓</button></span>
         <button class="small-button edit-single" data-index="${i}">✏️</button>
         <button class="trash" data-index="${i}">🗑️</button>
       </div>
     </div>`).join("");
 
+  $("#addSymptomButton").classList.toggle("hidden", reorderMode);
+  $("#symptomEditor").classList.toggle("hidden", reorderMode);
+  $("#editModeButton").textContent = editMode ? "完了" : "✏️ 編集";
+  $("#reorderModeButton").textContent = reorderMode ? "保存" : "☰ 並び替え";
+  let cancelButton=$("#cancelReorderButton");
+  if(reorderMode && !cancelButton){
+    cancelButton=document.createElement("button");
+    cancelButton.id="cancelReorderButton";
+    cancelButton.className="small-button";
+    cancelButton.textContent="キャンセル";
+    $(".section-tools").prepend(cancelButton);
+  }
+  if(!reorderMode && cancelButton) cancelButton.remove();
+  if(cancelButton) cancelButton.onclick=()=>{reorderMode=false;reorderDraft=null;renderSettings();};
+
   $$(".trash").forEach(button=>button.onclick=()=>{
     if(confirm("この症状を削除しますか？")){
       state.symptoms.splice(Number(button.dataset.index),1);
-      persist();renderSettings();
+      persist();renderSettings();renderInput();
     }
   });
   $$(".edit-single").forEach(button=>button.onclick=()=>openSymptomEditor(Number(button.dataset.index)));
-  $$(".move-up").forEach(button=>button.onclick=()=>moveSymptom(Number(button.dataset.index),-1));
-  $$(".move-down").forEach(button=>button.onclick=()=>moveSymptom(Number(button.dataset.index),1));
 
-  let dragIndex = null;
-  $$(".symptom-row").forEach(row=>{
-    row.ondragstart=()=>dragIndex=Number(row.dataset.index);
-    row.ondragover=e=>e.preventDefault();
-    row.ondrop=()=>{
-      const to=Number(row.dataset.index);
-      if(dragIndex===null || dragIndex===to) return;
-      const [item]=state.symptoms.splice(dragIndex,1);
-      state.symptoms.splice(to,0,item);
-      persist();renderSettings();
+  if(reorderMode) enablePointerReorder(list);
+}
+
+let reorderPointerId = null;
+let reorderDraggingIndex = null;
+function enablePointerReorder(list){
+  list.querySelectorAll(".drag-handle").forEach(handle=>{
+    handle.onpointerdown=e=>{
+      e.preventDefault();
+      reorderPointerId=e.pointerId;
+      reorderDraggingIndex=Number(handle.closest(".symptom-row").dataset.index);
+      handle.closest(".symptom-row").classList.add("dragging");
+      try{handle.setPointerCapture(e.pointerId)}catch{}
     };
   });
 }
-$("#editModeButton").onclick=()=>{editMode=!editMode;reorderMode=false;renderSettings();};
-$("#reorderModeButton").onclick=()=>{reorderMode=!reorderMode;editMode=false;renderSettings();};
+document.addEventListener("pointermove",e=>{
+  if(!reorderMode || reorderDraggingIndex===null || e.pointerId!==reorderPointerId) return;
+  e.preventDefault();
+  const list=$("#symptomList");
+  const rows=[...list.querySelectorAll(".symptom-row")];
+  const over=rows.find(row=>{
+    const r=row.getBoundingClientRect();
+    return e.clientY>=r.top && e.clientY<=r.bottom;
+  });
+  if(!over) return;
+  const to=Number(over.dataset.index);
+  if(to===reorderDraggingIndex) return;
+  const [item]=reorderDraft.splice(reorderDraggingIndex,1);
+  reorderDraft.splice(to,0,item);
+  reorderDraggingIndex=to;
+  renderSettings();
+  list.querySelector(`.symptom-row[data-index="${to}"]`)?.classList.add("dragging");
+},{passive:false});
+function finishReorderPointer(e){
+  if(e.pointerId!==reorderPointerId) return;
+  $("#symptomList .dragging")?.classList.remove("dragging");
+  reorderPointerId=null;
+  reorderDraggingIndex=null;
+}
+document.addEventListener("pointerup",finishReorderPointer);
+document.addEventListener("pointercancel",finishReorderPointer);
+$("#editModeButton").onclick=()=>{editMode=!editMode;reorderMode=false;reorderDraft=null;renderSettings();};
+$("#reorderModeButton").onclick=()=>{
+  if(reorderMode){
+    state.symptoms=reorderDraft.map(x=>({...x}));
+    persist();renderInput();toast("並び順を保存しました");
+    reorderMode=false;reorderDraft=null;
+  }else{
+    reorderMode=true;editMode=false;reorderDraft=state.symptoms.map(x=>({...x,extra:{...(x.extra||{})}}));
+  }
+  renderSettings();
+};
 $("#addSymptomButton").onclick=()=>openSymptomEditor(null);
 
 function openSymptomEditor(index){
@@ -971,10 +1077,8 @@ $("#saveSymptom").onclick=()=>{
 
 const emojis=["🤕","😵‍💫","👂","🦶","🤢","💪","💥","💊","🩹","🌡️","💤","⚡","😷","🤒","🦷","🫀","🫁","🧠","🩸","❤️‍🩹","🥶","🥵","😴","😖","😣","🌀","💧","🌧️","☀️","🌙","🍀","🧊"];
 function renderEmojiPicker(){
-  const recent = (state.settings.recentEmojis || []).slice(0,8);
-  $("#recentEmojiGrid").innerHTML = (recent.length?recent:["🤕","😵‍💫","👂","🦶","🤢","💪"]).map(e=>`<button>${e}</button>`).join("");
   $("#emojiGrid").innerHTML = emojis.map(e=>`<button>${e}</button>`).join("");
-  $$("#recentEmojiGrid button, #emojiGrid button").forEach(button=>button.onclick=()=>chooseEmoji(button.textContent));
+  $$("#emojiGrid button").forEach(button=>button.onclick=()=>chooseEmoji(button.textContent));
 }
 function chooseEmoji(e){
   selectedEmoji=e;
@@ -1006,28 +1110,62 @@ $$(".theme-chip").forEach(button=>button.onclick=()=>{
 });
 $("#exportRangeSelect").onchange=renderOtherSettings;
 
-$("#backupButton").onclick=()=>{
-  const payload={...state,exportedAt:new Date().toISOString()};
+let pendingRestoreFile = null;
+function closeModal(id){ $(id).classList.remove("show"); }
+function openModal(id){ $(id).classList.add("show"); }
+function backupFileName(){
+  const d=new Date();
+  return `CN_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
+}
+$("#backupButton").onclick=()=>openModal("#backupConfirmModal");
+$("#cancelBackup").onclick=()=>closeModal("#backupConfirmModal");
+$("#chooseBackupDestination").onclick=()=>{
+  const payload={...state,appVersion:APP_VERSION,dataVersion:DATA_VERSION,exportedAt:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=`condition-note-backup-${iso(new Date())}.json`;
+  a.href=url;
+  a.download=backupFileName();
   document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast("バックアップを作成しました");
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  closeModal("#backupConfirmModal");
+  openModal("#backupCompleteModal");
 };
-$("#restoreFile").onchange=async e=>{
+$("#closeBackupComplete").onclick=()=>closeModal("#backupCompleteModal");
+$("#restoreButton").onclick=()=>openModal("#restoreSelectModal");
+$("#cancelRestoreSelect").onclick=()=>closeModal("#restoreSelectModal");
+$("#chooseRestoreFile").onclick=()=>$("#restoreFile").click();
+$("#restoreFile").onchange=e=>{
   const file=e.target.files?.[0];
+  if(!file) return;
+  pendingRestoreFile=file;
+  $("#restoreFileName").textContent=file.name;
+  closeModal("#restoreSelectModal");
+  openModal("#restoreConfirmModal");
+};
+$("#cancelRestoreConfirm").onclick=()=>{
+  pendingRestoreFile=null;$("#restoreFile").value="";closeModal("#restoreConfirmModal");
+};
+$("#confirmRestore").onclick=async()=>{
+  const file=pendingRestoreFile;
   if(!file) return;
   try{
     const restored=JSON.parse(await file.text());
-    if(!restored.records || !restored.symptoms) throw new Error();
-    if(!confirm("現在のデータをバックアップ内容で置き換えますか？")) return;
+    if(!restored.records || !restored.symptoms) throw new Error("invalid");
     state=normalizeState(restored);
-    persist();applyTheme();renderInput();renderSettings();renderOtherSettings();toast("復元しました");
-  }catch{alert("復元できませんでした。バックアップファイルを確認してください。");}
-  finally{e.target.value="";}
+    state.appVersion=APP_VERSION;
+    state.dataVersion=DATA_VERSION;
+    persist();
+    closeModal("#restoreConfirmModal");
+    openModal("#restoreCompleteModal");
+  }catch{
+    closeModal("#restoreConfirmModal");
+    alert("復元できませんでした。バックアップファイルを確認してください。");
+  }finally{
+    pendingRestoreFile=null;$("#restoreFile").value="";
+  }
 };
+$("#reloadAfterRestore").onclick=()=>location.reload();
 
 function selectedExportEntries(){
   const mode=$("#exportRangeSelect").value;
