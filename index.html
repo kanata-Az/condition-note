@@ -523,7 +523,7 @@
 
 <script>
 const STORAGE_KEY = "condition-note-v2";
-const APP_VERSION = "3.1.1";
+const APP_VERSION = "3.1.2";
 const DATA_VERSION = 4;
 const LEGACY_KEYS = ["condition-note-v11","condition-note-v1","condition-note"];
 const $ = s => document.querySelector(s);
@@ -612,6 +612,7 @@ const typeName = t => ({none:"なし",scale10:"数値（1〜10）",side:"左右"
 
 function normalizeState(source){
   const existing = Array.isArray(source?.symptoms) ? source.symptoms : [];
+  const previouslyArchived = Array.isArray(source?.archivedSymptoms) ? source.archivedSymptoms : [];
   const byId = Object.fromEntries(existing.map(x=>[x.id,x]));
   const byName = Object.fromEntries(existing.map(x=>[x.name,x]));
   const dynamicSleep = existing.find(x=>x.name==="眠気");
@@ -619,13 +620,40 @@ function normalizeState(source){
     if(id===dynamicSleep?.id) return "sleepiness";
     return symptomAliases[id] || id;
   };
-  const symptoms = defaultSymptoms.map(def=>{
+  const normalizedDefaults = defaultSymptoms.map(def=>{
     const previous = byId[def.id] || (def.id==="tinnitus"?byId.ear:null) || (def.id==="shoulder"?byId.other:null) || (def.id==="sleepiness"?dynamicSleep:null) || byName[def.name];
-    return {...def, ...(previous||{}), id:def.id, name:def.name, emoji:def.emoji, extra:{...def.extra,...(previous?.extra||{})}};
+    return {...def, ...(previous||{}), id:def.id, extra:{...def.extra,...(previous?.extra||{})}};
   });
-  const activeIds = new Set(symptoms.map(x=>x.id));
-  const archivedSymptoms = [...(source?.archivedSymptoms||[])];
-  existing.forEach(x=>{const id=resolveId(x.id); if(!activeIds.has(id) && !archivedSymptoms.some(a=>a.id===id)) archivedSymptoms.push({...x,id});});
+  const defaultById = Object.fromEntries(normalizedDefaults.map(x=>[x.id,x]));
+  const defaultIds = new Set(Object.keys(defaultById));
+  const symptoms = [];
+  const activeIds = new Set();
+  const restoreCandidates = previouslyArchived.filter(item=>item?.id && !existing.some(x=>resolveId(x.id)===resolveId(item.id)));
+  [...existing, ...restoreCandidates].forEach(item=>{
+    if(!item || !item.id) return;
+    const id = resolveId(item.id);
+    if(activeIds.has(id)) return;
+    activeIds.add(id);
+    if(defaultIds.has(id)){
+      symptoms.push(defaultById[id]);
+      return;
+    }
+    symptoms.push({
+      ...item,
+      id,
+      emoji:item.emoji || "😊",
+      name:item.name || "症状",
+      extra:{type:item.extra?.type || "none",options:Array.isArray(item.extra?.options) ? item.extra.options : []}
+    });
+  });
+  normalizedDefaults.forEach(item=>{
+    if(activeIds.has(item.id)) return;
+    activeIds.add(item.id);
+    symptoms.push(item);
+  });
+  const archivedSymptoms = previouslyArchived
+    .map(x=>({...x,id:resolveId(x.id)}))
+    .filter((x,index,list)=>x.id && !activeIds.has(x.id) && list.findIndex(y=>y.id===x.id)===index);
   const records = {};
   Object.entries(source?.records || {}).forEach(([date,record])=>{
     const raw = Array.isArray(record?.symptoms) ? record.symptoms : [];

@@ -1,4 +1,4 @@
-const CACHE = "condition-note-v311";
+const CACHE = "condition-note-v312";
 const FILES = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 self.addEventListener("install", event => {
   self.skipWaiting();
