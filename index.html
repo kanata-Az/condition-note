@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="コンディションノート" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>コンディションノート Ver.3.1.1</title>
+  <title>コンディションノート Ver.3.1.4</title>
   <style>
     :root{
       --accent:#5ba7e5;
@@ -40,6 +40,8 @@
     .input-date-card{padding:12px 14px}
     .date-row{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;gap:8px;align-items:center}
     .date-row .small-button{padding:10px 6px;white-space:nowrap}
+    .today-shortcut{display:block;margin:8px auto 0;border:0;background:transparent;color:var(--accent);font-size:13px;font-weight:700;padding:3px 9px}
+    .today-shortcut[hidden]{display:none}
     .input-main-card{padding:14px}
     .input-section-title{font-size:15px;font-weight:800;margin:0 0 10px}
     .input-divider{height:1px;background:var(--line);margin:14px 0}
@@ -88,6 +90,7 @@
     .calendar-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
     .calendar-detail-item{border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px;min-height:62px}
     .calendar-detail-memo{margin-top:7px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px}
+    .calendar-open-input{margin-top:9px}
     .summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     .stat{background:#fff;border-radius:14px;padding:10px;text-align:center;border:1px solid #e3ebf2}
     .stat b{display:block;font-size:18px;margin-top:4px}
@@ -234,6 +237,7 @@
         <button class="date-display" id="dateButton" aria-label="日付を選択"></button>
         <button class="small-button" id="nextDay">翌日 ▶</button>
       </div>
+      <button class="today-shortcut" id="goToToday" type="button" hidden>今日に戻る</button>
       <input id="datePicker" type="date" class="date-picker-proxy" aria-hidden="true" tabindex="-1">
     </div>
 
@@ -272,6 +276,7 @@
       <div class="calendar-detail-date" id="calendarDetailDate"></div>
       <div class="calendar-detail-grid" id="calendarDetailGrid"></div>
       <div class="calendar-detail-memo hidden" id="calendarDetailMemo"></div>
+      <button class="small-button full calendar-open-input" id="calendarOpenInput" type="button">この日の入力画面へ</button>
     </div>
   </section>
 
@@ -523,7 +528,7 @@
 
 <script>
 const STORAGE_KEY = "condition-note-v2";
-const APP_VERSION = "3.1.2";
+const APP_VERSION = "3.1.4";
 const DATA_VERSION = 4;
 const LEGACY_KEYS = ["condition-note-v11","condition-note-v1","condition-note"];
 const $ = s => document.querySelector(s);
@@ -709,6 +714,7 @@ $("#settingsButton").onclick=()=>showPage("settings");
 function renderInput(){
   $("#dateButton").textContent = formatDate(selectedDate);
   $("#datePicker").value = iso(selectedDate);
+  $("#goToToday").hidden = iso(selectedDate) === iso(new Date());
   const record = state.records[iso(selectedDate)];
   selectedSymptoms = new Set((record?.symptoms || []).map(x=>x.id));
   extraValues = {};
@@ -772,6 +778,7 @@ $("#dateButton").onclick=()=>$("#datePicker").showPicker ? $("#datePicker").show
 $("#datePicker").onchange=e=>{selectedDate=parseDate(e.target.value);renderInput();};
 $("#previousDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);renderInput();};
 $("#nextDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()+1);renderInput();};
+$("#goToToday").onclick=()=>{selectedDate=new Date();renderInput();};
 $("#saveRecord").onclick=()=>{
   state.records[iso(selectedDate)] = {
     memo:$("#memo").value,
@@ -833,6 +840,12 @@ function renderCalendarDetail(date){
   $("#calendarDetailMemo").innerHTML = memo ? `<b>📝 メモ</b><br>${memo.replaceAll("<","&lt;")}` : "";
   $("#calendarDetailCard").classList.add("show");
 }
+$("#calendarOpenInput").onclick=()=>{
+  if(!calendarSelectedDate) return;
+  selectedDate = parseDate(calendarSelectedDate);
+  showPage("input");
+  renderInput();
+};
 $("#calendarPrev").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);calendarSelectedDate=null;renderCalendar();};
 $("#calendarNext").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);calendarSelectedDate=null;renderCalendar();};
 $("#calendarToday").onclick=()=>{const now=new Date();calendarMonth=new Date(now.getFullYear(),now.getMonth(),1);calendarSelectedDate=null;renderCalendar();};
